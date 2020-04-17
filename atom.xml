@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-04-16T13:38:12.092Z</updated>
+  <updated>2020-04-17T06:53:12.126Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Linux下批量kill多个同名进程</title>
+    <link href="http://yoursite.com/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/"/>
+    <id>http://yoursite.com/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/</id>
+    <published>2020-04-17T06:54:25.292Z</published>
+    <updated>2020-04-17T06:53:12.126Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>循序渐进</p><p>第一步：ps -ef | grep [name] 筛选出同名的所有进程</p><p>第二步：ps -ef | grep [name] | grep -v grep 将第一步中的grep进程删除</p><p>第三步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 截断获取所有的pid号，这里cut的作用就是截取，1-5为范围，需要根据实际情况来改变</p><p>第四步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 | xargs kill -9 将之前的所有pid作为kill命令的参数 </p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;blockquote&gt;
+&lt;p&gt;循序渐进&lt;/p&gt;
+&lt;p&gt;第一步：ps -ef | grep [name] 筛选出同名的所有进程&lt;/p&gt;
+&lt;p&gt;第二步：ps -ef | grep [name] | grep -v grep 将第一步中的grep进程删除&lt;/p&gt;
+&lt;p&gt;第三步：ps
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
   
   <entry>
     <title>Linux终端控制打印字符的颜色</title>
