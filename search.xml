@@ -8,7 +8,7 @@
       <link href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/"/>
       <url>/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/</url>
       
-        <content type="html"><![CDATA[<blockquote><p>循序渐进</p><p>第一步：ps -ef | grep [name] 筛选出同名的所有进程</p><p>第二步：ps -ef | grep [name] | grep -v grep 将第一步中的grep进程删除</p><p>第三步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 截断获取所有的pid号，这里cut的作用就是截取，1-5为范围，需要根据实际情况来改变</p><p>第四步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 | xargs kill -9 将之前的所有pid作为kill命令的参数 </p></blockquote>]]></content>
+        <content type="html"><![CDATA[<blockquote><p>循序渐进</p><p>第一步：ps -ef | grep [name] 筛选出同名的所有进程</p><p>第二步：ps -ef | grep [name] | grep -v grep 将第一步中的grep进程删除</p><p>第三步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 截断获取所有的pid号，这里cut的作用就是截取，1-5的作用是根据下标取出pid号，类似于python的切片，需要根据实际情况来调整</p><p>第四步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 | xargs kill -9 将之前的所有pid作为kill命令的参数 </p></blockquote>]]></content>
       
       
       
