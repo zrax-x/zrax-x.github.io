@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>VolgaCTF-2020-Keygreed-WP</title>
+      <link href="/2020/04/17/VolgaCTF-Keygreed/"/>
+      <url>/2020/04/17/VolgaCTF-Keygreed/</url>
+      
+        <content type="html"><![CDATA[<p>关于mov attack，可以参考这篇<a href="https://blog.csdn.net/qq_26060285/article/details/90482755" target="_blank" rel="noopener">博客</a></p><p>下面简单说说这道题</p><p>首先我们可以验证这个椭圆曲线是超奇异的(supersingular)，在这里 $p^2 - 1 = 0\mod p.order()$</p><blockquote><p>The MOV attack works by using the <a href="https://en.wikipedia.org/wiki/Weil_pairing" target="_blank" rel="noopener">Weil pairing</a> (e: $E[m]×E[m]→μ_m$) to translate solving the dlog in the elliptic curve group to solving it in the multiplicative group $μ_m$ (group of m-th roots of unity), where sub-exponential algorithms exist. </p><p>Then, working in $F_{p^k}$ (extension of $F_p$), take Q to be a point in $E[m]$ (group of m-torsion points), such that P,Q are linearly independent, which can be constructed. Finally, take $e(P,Q)$ and $e(xP,Q)=e(P,Q)^x$ (due to bilinearity of e) as a dlog instance over a fininte field (m-th roots of unity), this is true by the non-degeneracy of the Weil pairing.</p></blockquote><p>因此这里的关键就是找到点Q，然后便把问题转化为了一个离散对数问题，寻找点Q的步骤如下</p><ol><li>在$F_{p^k}$上随机选取一个点，记为$R$</li><li>计算$m=R.order()$</li><li>计算$d=gcd(m,P.order)$</li><li>得到$Q=(m//d)*R$</li></ol><p>得到$Q$后，由于$Q=k*P$，因此问题就变得简单了很多。</p><p>好了，到了这里，事实上我还是没有搞懂MOV attack的具体原理，也没有讲清楚这道题的具体解法。不过没关系，后续可以慢慢理解，而且我认为我已经把MOV attack中的最重要的一个环节简单的阐述了一下。</p><p>Anyway，如果想看看这道题的具体解法，可以参考这篇<a href="https://sectt.github.io/writeups/Volga20/crypto_keygreed/README" target="_blank" rel="noopener">WriteUp</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+            <tag> 密码学 </tag>
+            
+            <tag> ECC </tag>
+            
+            <tag> MOV attack </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Linux下批量kill多个同名进程</title>
       <link href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/"/>
       <url>/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/</url>
