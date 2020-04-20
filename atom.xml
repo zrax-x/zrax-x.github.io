@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-04-18T01:05:24.499Z</updated>
+  <updated>2020-04-20T01:07:36.866Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,65 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>2020数字中国虎符CTF之GM&amp;McEliece</title>
+    <link href="http://yoursite.com/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/"/>
+    <id>http://yoursite.com/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/</id>
+    <published>2020-04-20T07:00:00.000Z</published>
+    <updated>2020-04-20T01:07:36.866Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="GM"><a href="#GM" class="headerlink" title="GM"></a>GM</h3><p>根据<code>pow(q ** 2 * x, (p-1)/2, p) + pow(p ** 2 * x, (q-1)/2, q) == N - phi - 1</code>可以得出<code>pow(x, (p-1)/2, p) == -1</code>。同时<code>(pow(x, int(br + bi, 2), N) * r ** 2) % N</code>等价于$x^{br<em>2+bi}</em>r^2\mod N$, 将其记为$a$，然后计算。$a^{(p-1)/2}\mod p$。我们把$a$代入化简，得到$x^{br<em>2</em>(p-1)/2}<em>x^{bi</em>(p-1)/2}<em>r^{2</em>(p-1)/2}\mod p$，由于第一项和第三项的结果一定为1，因此，当$bi=1$时，整个式子的结果为-1，$bi=0$时整个式子的结果为1。据此，我们可以判断某一位是0还是1。</p><p>代码如下：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"output"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:</span><br><span class="line">f = f.readlines()</span><br><span class="line"></span><br><span class="line">phin = int(f[<span class="number">0</span>].strip())</span><br><span class="line">n = int(f[<span class="number">1</span>].strip())</span><br><span class="line">enc = eval(f[<span class="number">2</span>].strip())</span><br><span class="line"></span><br><span class="line">a = n-phin+<span class="number">1</span></span><br><span class="line"><span class="comment"># print iroot(a**2-4*n, 2)</span></span><br><span class="line">p = (a+iroot(a**<span class="number">2</span><span class="number">-4</span>*n, <span class="number">2</span>)[<span class="number">0</span>])//<span class="number">2</span></span><br><span class="line"><span class="keyword">assert</span> n%p==<span class="number">0</span></span><br><span class="line"></span><br><span class="line">res = <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> enc:</span><br><span class="line"><span class="keyword">if</span> pow(x, (p<span class="number">-1</span>)//<span class="number">2</span>, p) == <span class="number">1</span>:</span><br><span class="line">res = res + <span class="string">'0'</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">res = res + <span class="string">'1'</span></span><br><span class="line"></span><br><span class="line">print(long_to_bytes(int(res,<span class="number">2</span>)))</span><br></pre></td></tr></table></figure><p><strong>FLAG: flag{bd4f1790-f4a2-4904-b4d2-8db8b24fd864}</strong></p><h3 id="McEliece"><a href="#McEliece" class="headerlink" title="McEliece"></a>McEliece</h3><p>根据pubkey可以得出，加密时plain长为28bit，结果为64bit，错误码中6位为1。由于flag中的字符类型有限，可以直接爆破，计算的结果$uG’$和题目给出的加密的结果$uG’+e$应该满足海明距离小于等于6。</p><p>代码如下：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> product</span><br><span class="line"></span><br><span class="line">pubkey=load(<span class="string">"./pubkey.sobj"</span>)</span><br><span class="line">cipher=load(<span class="string">"./cipher.sobj"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span><span class="params">(plain)</span>:</span></span><br><span class="line"><span class="keyword">return</span> plain*pubkey</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">same</span><span class="params">(a, b)</span>:</span></span><br><span class="line">sum = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(a.ncols()):</span><br><span class="line"><span class="keyword">if</span> a[<span class="number">0</span>,i] == b[<span class="number">0</span>,i]:</span><br><span class="line">sum += <span class="number">1</span></span><br><span class="line"><span class="keyword">return</span> sum</span><br><span class="line"></span><br><span class="line">l = <span class="number">28</span></span><br><span class="line">t = <span class="string">"0123456789abcdef-&#125;"</span></span><br><span class="line">len = <span class="number">2</span></span><br><span class="line"></span><br><span class="line">flag=<span class="string">"flag&#123;c9"</span></span><br><span class="line">prev_cand=[]</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> len&lt;<span class="number">12</span>:</span><br><span class="line"><span class="keyword">print</span> len</span><br><span class="line">cand = <span class="string">""</span></span><br><span class="line">iter = product(t, repeat=<span class="number">4</span>)</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> iter:</span><br><span class="line">tmp = flag+<span class="string">""</span>.join(x)</span><br><span class="line">bin = BinaryStrings()</span><br><span class="line">msg = map(int ,str(bin.encoding(tmp)))</span><br><span class="line">plain = matrix(GF(<span class="number">2</span>),<span class="number">1</span>,l)</span><br><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> range(l):</span><br><span class="line">plain[<span class="number">0</span>,j] = msg[l*len+j]</span><br><span class="line"><span class="keyword">if</span> same(cipher[len], encrypt(plain))&gt;<span class="number">52</span>:</span><br><span class="line"><span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">prev_cand.append(x[<span class="number">3</span>])</span><br><span class="line">cand = x</span><br><span class="line"><span class="keyword">print</span> <span class="string">""</span>.join(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line"><span class="keyword">if</span> x[<span class="number">0</span>] <span class="keyword">in</span> prev_cand:</span><br><span class="line">flag += <span class="string">""</span>.join(x)</span><br><span class="line">prev_cand = []</span><br><span class="line"><span class="keyword">break</span></span><br><span class="line"><span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">flag+=<span class="string">""</span>.join(cand[:<span class="number">3</span>])</span><br><span class="line"><span class="keyword">print</span> flag</span><br><span class="line">len += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> flag</span><br><span class="line"></span><br><span class="line"><span class="comment">#flag&#123;c941a3cc-85e3-4401-a0f1-764206e71bf3&#125;</span></span><br></pre></td></tr></table></figure><p><strong>FLAG: flag{c941a3cc-85e3-4401-a0f1-764206e71bf3}</strong></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;GM&quot;&gt;&lt;a href=&quot;#GM&quot; class=&quot;headerlink&quot; title=&quot;GM&quot;&gt;&lt;/a&gt;GM&lt;/h3&gt;&lt;p&gt;根据&lt;code&gt;pow(q ** 2 * x, (p-1)/2, p) + pow(p ** 2 * x, (q-1)/2, q) ==
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux Hook技术介绍</title>
+    <link href="http://yoursite.com/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/"/>
+    <id>http://yoursite.com/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/</id>
+    <published>2020-04-18T07:00:00.000Z</published>
+    <updated>2020-04-20T01:09:47.089Z</updated>
+    
+    <content type="html"><![CDATA[<p>Linux常见的hook技术主要有四种，分别为内核模块hook，应用层inline hook，应用层Got hook以及应用层preload hook。下面具体介绍一下</p><h3 id="内核模块hook"><a href="#内核模块hook" class="headerlink" title="内核模块hook"></a>内核模块hook</h3><blockquote><p>通常是从内核源码特殊位置，修改回调、修改中断表；或修改重编译内核，导出内部函数，从而跳转到自定义函数，开发内核模块实现hook。 </p><p>其特性如下：</p><ul><li>可以拦截到所有应用层系统调用，应用层无法绕过</li><li>开发调试复杂，测试周期长，升级和卸载内核模块带来稳定性问题</li></ul></blockquote><h3 id="应用层inline-Hook"><a href="#应用层inline-Hook" class="headerlink" title="应用层inline Hook"></a>应用层inline Hook</h3><blockquote><p>应用层内联hook，即直接修改二进制函数体的汇编指令，修改执行逻辑使其跳转到自定义函数，开发应用层模块实现hook。 </p><p>其特性如下：</p><ul><li>可以拦截到系统调用和普通库函数</li><li>由于linux系统本身具有多个发行版本及指令集，不容易做到通用</li><li>可以通过自定义实现底层函数或恢复模块内存方式绕过</li></ul></blockquote><h3 id="应用层Got-Hook"><a href="#应用层Got-Hook" class="headerlink" title="应用层Got Hook"></a>应用层Got Hook</h3><blockquote><p>应用层got表hook，即在运行阶段修改程序本身got表，这样调用api的逻辑，就会相应的跳转到用户自定义函数中。</p><ul><li>可以拦截系统调用和普通库函数</li><li>由于只需要考虑ELF格式因此实现难度较为简单</li><li>可以通过自定义实现底层函数或恢复got表内存方式绕过</li></ul></blockquote><h3 id="Preload-Hook"><a href="#Preload-Hook" class="headerlink" title="Preload Hook"></a>Preload Hook</h3><blockquote><p>  Preload Hook是指利用系统支持的preload能力，将模块自动注入进程实现hook。可以通过以下手段使用Preload技术：一种是环境变量配置(LD_PRELOAD)；另一种是文件配置：(/etc/ld.so.preload)。</p><ul><li>若使用命令行指定LD_PRELOAD则只影响该新进程及子进程；若写入全局环境变量则LD_PRELOAD对所有新进程生效；父进程可以控制子进程的环境变量从而取消preload</li><li>文件preload方式影响所有新进程且无法被取消</li><li>可以拦截到系统调用和普通库函数</li><li>实现和操作最为简单，只需要编写同名系统调用函数即可实现hook</li><li>可以使用动态调用方式或自定义实现方式绕过</li></ul></blockquote><h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://www.jianshu.com/p/69e6089a7291" target="_blank" rel="noopener">https://www.jianshu.com/p/69e6089a7291</a></p><p><a href="https://www.jianshu.com/p/f78b16bd8905" target="_blank" rel="noopener">https://www.jianshu.com/p/f78b16bd8905</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Linux常见的hook技术主要有四种，分别为内核模块hook，应用层inline hook，应用层Got hook以及应用层preload hook。下面具体介绍一下&lt;/p&gt;
+&lt;h3 id=&quot;内核模块hook&quot;&gt;&lt;a href=&quot;#内核模块hook&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="Linux" scheme="http://yoursite.com/tags/Linux/"/>
+    
+      <category term="Hook" scheme="http://yoursite.com/tags/Hook/"/>
+    
+  </entry>
   
   <entry>
     <title>Linux终端控制打印字符的颜色</title>

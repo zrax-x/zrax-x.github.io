@@ -15,19 +15,17 @@
 
 
 
-<meta name="description" content="关于mov attack，可以参考这篇博客 下面简单说说这道题 首先我们可以验证这个椭圆曲线是超奇异的(supersingular)，在这里 $p^2 - 1 &#x3D; 0\mod p.order()$  The MOV attack works by using the Weil pairing (e: $E[m]×E[m]→μ_m$) to translate solving the dlog in">
+<meta name="description" content="GM根据pow(q ** 2 * x, (p-1)&#x2F;2, p) + pow(p ** 2 * x, (q-1)&#x2F;2, q) &#x3D;&#x3D; N - phi - 1可以得出pow(x, (p-1)&#x2F;2, p) &#x3D;&#x3D; -1。同时(pow(x, int(br + bi, 2), N) * r ** 2) % N等价于$x^{br2+bi}r^2\mod N$, 将其记为$a$，然后计算。$a^{(p-1)&#x2F;2}\">
 <meta property="og:type" content="article">
-<meta property="og:title" content="VolgaCTF-2020-Keygreed-WP">
-<meta property="og:url" content="http://yoursite.com/2020/04/17/VolgaCTF-Keygreed/index.html">
+<meta property="og:title" content="2020数字中国虎符CTF之GM&amp;McEliece">
+<meta property="og:url" content="http://yoursite.com/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/index.html">
 <meta property="og:site_name" content="从零开始的博客">
-<meta property="og:description" content="关于mov attack，可以参考这篇博客 下面简单说说这道题 首先我们可以验证这个椭圆曲线是超奇异的(supersingular)，在这里 $p^2 - 1 &#x3D; 0\mod p.order()$  The MOV attack works by using the Weil pairing (e: $E[m]×E[m]→μ_m$) to translate solving the dlog in">
-<meta property="article:published_time" content="2020-04-18T00:52:57.376Z">
-<meta property="article:modified_time" content="2020-04-18T00:45:39.965Z">
+<meta property="og:description" content="GM根据pow(q ** 2 * x, (p-1)&#x2F;2, p) + pow(p ** 2 * x, (q-1)&#x2F;2, q) &#x3D;&#x3D; N - phi - 1可以得出pow(x, (p-1)&#x2F;2, p) &#x3D;&#x3D; -1。同时(pow(x, int(br + bi, 2), N) * r ** 2) % N等价于$x^{br2+bi}r^2\mod N$, 将其记为$a$，然后计算。$a^{(p-1)&#x2F;2}\">
+<meta property="article:published_time" content="2020-04-20T07:00:00.000Z">
+<meta property="article:modified_time" content="2020-04-20T01:07:36.866Z">
 <meta property="article:author" content="zraxx">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="密码学">
-<meta property="article:tag" content="ECC">
-<meta property="article:tag" content="MOV attack">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -62,7 +60,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>VolgaCTF-2020-Keygreed-WP | 从零开始的博客</title>
+<title>2020数字中国虎符CTF之GM&amp;McEliece | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -245,11 +243,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-VolgaCTF-Keygreed" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-2020数字中国虎符CTF之GM&amp;McEliece" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/04/17/VolgaCTF-Keygreed/" class="article-date">
-      <time datetime="2020-04-18T00:52:57.376Z" itemprop="datePublished">2020-04-17</time>
+      <a href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/" class="article-date">
+      <time datetime="2020-04-20T07:00:00.000Z" itemprop="datePublished">2020-04-20</time>
 </a>
 
 
@@ -264,7 +262,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      VolgaCTF-2020-Keygreed-WP
+      2020数字中国虎符CTF之GM&amp;McEliece
     </h1>
   
 
@@ -275,7 +273,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECC/" rel="tag">ECC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MOV-attack/" rel="tag">MOV attack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -285,23 +283,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>关于mov attack，可以参考这篇<a href="https://blog.csdn.net/qq_26060285/article/details/90482755" target="_blank" rel="noopener">博客</a></p>
-<p>下面简单说说这道题</p>
-<p>首先我们可以验证这个椭圆曲线是超奇异的(supersingular)，在这里 $p^2 - 1 = 0\mod p.order()$</p>
-<blockquote>
-<p>The MOV attack works by using the <a href="https://en.wikipedia.org/wiki/Weil_pairing" target="_blank" rel="noopener">Weil pairing</a> (e: $E[m]×E[m]→μ_m$) to translate solving the dlog in the elliptic curve group to solving it in the multiplicative group $μ_m$ (group of m-th roots of unity), where sub-exponential algorithms exist. </p>
-<p>Then, working in $F_{p^k}$ (extension of $F_p$), take Q to be a point in $E[m]$ (group of m-torsion points), such that P,Q are linearly independent, which can be constructed. Finally, take $e(P,Q)$ and $e(xP,Q)=e(P,Q)^x$ (due to bilinearity of e) as a dlog instance over a fininte field (m-th roots of unity), this is true by the non-degeneracy of the Weil pairing.</p>
-</blockquote>
-<p>因此这里的关键就是找到点Q，然后便把问题转化为了一个离散对数问题，寻找点Q的步骤如下</p>
-<ol>
-<li>在$F_{p^k}$上随机选取一个点，记为$R$</li>
-<li>计算$m=R.order()$</li>
-<li>计算$d=gcd(m,P.order)$</li>
-<li>得到$Q=(m//d)*R$</li>
-</ol>
-<p>得到$Q$后，由于$Q=k*P$，因此问题就变得简单了很多。</p>
-<p>好了，到了这里，事实上我还是没有搞懂MOV attack的具体原理，也没有讲清楚这道题的具体解法。不过没关系，后续可以慢慢理解，而且我认为我已经把MOV attack中的最重要的一个环节简单的阐述了一下。</p>
-<p>Anyway，如果想看看这道题的具体解法，可以参考这篇<a href="https://sectt.github.io/writeups/Volga20/crypto_keygreed/README" target="_blank" rel="noopener">WriteUp</a></p>
+        <h3 id="GM"><a href="#GM" class="headerlink" title="GM"></a>GM</h3><p>根据<code>pow(q ** 2 * x, (p-1)/2, p) + pow(p ** 2 * x, (q-1)/2, q) == N - phi - 1</code>可以得出<code>pow(x, (p-1)/2, p) == -1</code>。同时<code>(pow(x, int(br + bi, 2), N) * r ** 2) % N</code>等价于$x^{br<em>2+bi}</em>r^2\mod N$, 将其记为$a$，然后计算。$a^{(p-1)/2}\mod p$。我们把$a$代入化简，得到$x^{br<em>2</em>(p-1)/2}<em>x^{bi</em>(p-1)/2}<em>r^{2</em>(p-1)/2}\mod p$，由于第一项和第三项的结果一定为1，因此，当$bi=1$时，整个式子的结果为-1，$bi=0$时整个式子的结果为1。据此，我们可以判断某一位是0还是1。</p>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"output"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:</span><br><span class="line">	f = f.readlines()</span><br><span class="line">	</span><br><span class="line">phin = int(f[<span class="number">0</span>].strip())</span><br><span class="line">n = int(f[<span class="number">1</span>].strip())</span><br><span class="line">enc = eval(f[<span class="number">2</span>].strip())</span><br><span class="line"></span><br><span class="line">a = n-phin+<span class="number">1</span></span><br><span class="line"><span class="comment"># print iroot(a**2-4*n, 2)</span></span><br><span class="line">p = (a+iroot(a**<span class="number">2</span><span class="number">-4</span>*n, <span class="number">2</span>)[<span class="number">0</span>])//<span class="number">2</span></span><br><span class="line"><span class="keyword">assert</span> n%p==<span class="number">0</span></span><br><span class="line"></span><br><span class="line">res = <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> enc:</span><br><span class="line">	<span class="keyword">if</span> pow(x, (p<span class="number">-1</span>)//<span class="number">2</span>, p) == <span class="number">1</span>:</span><br><span class="line">		res = res + <span class="string">'0'</span></span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		res = res + <span class="string">'1'</span></span><br><span class="line">		</span><br><span class="line">print(long_to_bytes(int(res,<span class="number">2</span>)))</span><br></pre></td></tr></table></figure>
+<p><strong>FLAG: flag{bd4f1790-f4a2-4904-b4d2-8db8b24fd864}</strong></p>
+<h3 id="McEliece"><a href="#McEliece" class="headerlink" title="McEliece"></a>McEliece</h3><p>根据pubkey可以得出，加密时plain长为28bit，结果为64bit，错误码中6位为1。由于flag中的字符类型有限，可以直接爆破，计算的结果$uG’$和题目给出的加密的结果$uG’+e$应该满足海明距离小于等于6。</p>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> product</span><br><span class="line"></span><br><span class="line">pubkey=load(<span class="string">"./pubkey.sobj"</span>)</span><br><span class="line">cipher=load(<span class="string">"./cipher.sobj"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span><span class="params">(plain)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> plain*pubkey</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">same</span><span class="params">(a, b)</span>:</span></span><br><span class="line">	sum = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(a.ncols()):</span><br><span class="line">		<span class="keyword">if</span> a[<span class="number">0</span>,i] == b[<span class="number">0</span>,i]:</span><br><span class="line">			sum += <span class="number">1</span></span><br><span class="line">	<span class="keyword">return</span> sum</span><br><span class="line">	</span><br><span class="line">l = <span class="number">28</span></span><br><span class="line">t = <span class="string">"0123456789abcdef-&#125;"</span></span><br><span class="line">len = <span class="number">2</span></span><br><span class="line"></span><br><span class="line">flag=<span class="string">"flag&#123;c9"</span></span><br><span class="line">prev_cand=[]</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> len&lt;<span class="number">12</span>:</span><br><span class="line">	<span class="keyword">print</span> len</span><br><span class="line">	cand = <span class="string">""</span></span><br><span class="line">	iter = product(t, repeat=<span class="number">4</span>)</span><br><span class="line">	<span class="keyword">for</span> x <span class="keyword">in</span> iter:</span><br><span class="line">		tmp = flag+<span class="string">""</span>.join(x)</span><br><span class="line">		bin = BinaryStrings()</span><br><span class="line">		msg = map(int ,str(bin.encoding(tmp)))</span><br><span class="line">		plain = matrix(GF(<span class="number">2</span>),<span class="number">1</span>,l)</span><br><span class="line">		<span class="keyword">for</span> j <span class="keyword">in</span> range(l):</span><br><span class="line">			plain[<span class="number">0</span>,j] = msg[l*len+j]</span><br><span class="line">		<span class="keyword">if</span> same(cipher[len], encrypt(plain))&gt;<span class="number">52</span>:</span><br><span class="line">			<span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">				prev_cand.append(x[<span class="number">3</span>])</span><br><span class="line">				cand = x</span><br><span class="line">				<span class="keyword">print</span> <span class="string">""</span>.join(x)</span><br><span class="line">				</span><br><span class="line">			<span class="keyword">else</span>:</span><br><span class="line">				<span class="keyword">if</span> x[<span class="number">0</span>] <span class="keyword">in</span> prev_cand:</span><br><span class="line">					flag += <span class="string">""</span>.join(x)</span><br><span class="line">					prev_cand = []</span><br><span class="line">					<span class="keyword">break</span></span><br><span class="line">	<span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">		flag+=<span class="string">""</span>.join(cand[:<span class="number">3</span>])</span><br><span class="line">	<span class="keyword">print</span> flag</span><br><span class="line">	len += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> flag</span><br><span class="line"></span><br><span class="line"><span class="comment">#flag&#123;c941a3cc-85e3-4401-a0f1-764206e71bf3&#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong>FLAG: flag{c941a3cc-85e3-4401-a0f1-764206e71bf3}</strong></p>
 
       
     </div>
@@ -310,13 +299,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2020/04/17/VolgaCTF-Keygreed/">VolgaCTF-2020-Keygreed-WP</a></p>
+        <p><span>本文标题:</span><a href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/">2020数字中国虎符CTF之GM&amp;McEliece</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
-        <p><span>发布时间:</span>2020-04-17, 17:52:57</p>
-        <p><span>最后更新:</span>2020-04-17, 17:45:39</p>
+        <p><span>发布时间:</span>2020-04-20, 00:00:00</p>
+        <p><span>最后更新:</span>2020-04-19, 18:07:36</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/04/17/VolgaCTF-Keygreed/" title="VolgaCTF-2020-Keygreed-WP">http://yoursite.com/2020/04/17/VolgaCTF-Keygreed/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2020/04/17/VolgaCTF-Keygreed/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/" title="2020数字中国虎符CTF之GM&amp;McEliece">http://yoursite.com/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -328,16 +317,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2020/04/17/Linux%E7%BB%88%E7%AB%AF%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%E7%9A%84%E9%A2%9C%E8%89%B2/">
-                    Linux终端控制打印字符的颜色
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/">
-                    Linux下批量kill多个同名进程
+                <a href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">
+                    Linux Hook技术介绍
                 </a>
             </div>
         
@@ -349,7 +332,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#GM"><span class="toc-number">1.</span> <span class="toc-text">GM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#McEliece"><span class="toc-number">2.</span> <span class="toc-text">McEliece</span></a></li></ol>
         
     </div>
     <style>
@@ -385,7 +368,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"VolgaCTF-2020-Keygreed-WP　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"2020数字中国虎符CTF之GM&McEliece　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -405,15 +388,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2020/04/17/Linux%E7%BB%88%E7%AB%AF%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%E7%9A%84%E9%A2%9C%E8%89%B2/" title="上一篇: Linux终端控制打印字符的颜色">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/" title="下一篇: Linux下批量kill多个同名进程">
+            <a href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" title="下一篇: Linux Hook技术介绍">
                 <i class="fa fa-angle-right"></i>
             </a>
         
