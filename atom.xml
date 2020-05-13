@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-06T11:22:22.728Z</updated>
+  <updated>2020-05-13T08:00:28.303Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,132 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>De1CTF[2020]-easyRSA</title>
+    <link href="http://yoursite.com/2020/05/11/De1CTF[2020]-easyRSA/"/>
+    <id>http://yoursite.com/2020/05/11/De1CTF[2020]-easyRSA/</id>
+    <published>2020-05-11T07:00:00.000Z</published>
+    <updated>2020-05-13T08:00:28.303Z</updated>
+    
+    <content type="html"><![CDATA[<p>题目源码</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> FLAG <span class="keyword">import</span> flag</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genE</span><span class="params">(lcm,limit)</span>:</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        r = random.randint(limit,limit*<span class="number">0x1000000000001</span>)</span><br><span class="line">        d = gmpy2.next_prime(r)</span><br><span class="line">        e = gmpy2.invert(d,lcm)</span><br><span class="line">        <span class="keyword">if</span> isPrime(e):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> e</span><br><span class="line"></span><br><span class="line">p = getStrongPrime(<span class="number">1024</span>)</span><br><span class="line">q = getStrongPrime(<span class="number">1024</span>)</span><br><span class="line">n = p*q</span><br><span class="line">lcm = gmpy2.lcm(p<span class="number">-1</span>,q<span class="number">-1</span>)</span><br><span class="line">limit = gmpy2.iroot(n,<span class="number">3</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">e1 = genE(lcm,limit)</span><br><span class="line">e2 = genE(lcm,limit)</span><br><span class="line"></span><br><span class="line">phi = (p<span class="number">-1</span>)*(q<span class="number">-1</span>)</span><br><span class="line">d1 = gmpy2.invert(e1,phi)</span><br><span class="line">d2 = gmpy2.invert(e2,phi)</span><br><span class="line"></span><br><span class="line">e = [e1,e2]</span><br><span class="line">plain = bytes_to_long(flag)</span><br><span class="line">cipher = pow(plain,e[random.getrandbits(<span class="number">1</span>)],n)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'N:'</span> + str(n))</span><br><span class="line">print(<span class="string">'e1:'</span> + str(e1))</span><br><span class="line">print(<span class="string">'e2:'</span> + str(e2))</span><br><span class="line">print(<span class="string">'cipher:'</span> + str(cipher))</span><br></pre></td></tr></table></figure><p>用n计算了两对e，d，其中d都比较小</p><p>这里需要参考这篇论文<a href="https://link.springer.com/content/pdf/10.1007%2F3-540-46701-7_14.pdf" target="_blank" rel="noopener">https://link.springer.com/content/pdf/10.1007%2F3-540-46701-7_14.pdf</a> </p><p>论文的结论就是给出多对e,d，其中$d&lt;N^α$，就可以分解N</p><p>这里当给出2对e，d时需要满足$d&lt;N^{5/14}$，观察题目就可以发现满足该不等式。</p><p>因此我们构造矩阵</p><p>$B = \begin{bmatrix}1 &amp; -N &amp; 0 &amp; N^2 \\  &amp; e_1 &amp; - e_1 &amp; -e_1N\\ &amp; &amp; e_2 &amp; -e_2N \\ &amp; &amp; &amp; e_1e_2\end{bmatrix}$</p><p>$D = \begin{bmatrix}N &amp;  &amp;  &amp;  \\  &amp;  N^{(1/2)} &amp; &amp; \\ &amp; &amp; N^{1+\delta_2} &amp;  \\ &amp; &amp; &amp; 1\end{bmatrix}$</p><p>$L=B*D$</p><p>同时需要求解的向量$v = (k_1k_2,k_2(g-k_1s),g(k_1-k_2),(g-k_1s)(g-k_2s))$</p><p>之后对$L$求$LLL$，记为$L_2$</p><p>于是$v = L_2[0]*L^{-1}$</p><p>之后便可得到$\Phi(N)=e_1*v[1]/v[0]​$，进而求得明文</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;题目源码&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+      <category term="RSA" scheme="http://yoursite.com/tags/RSA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>De1CTF[2020]-NLFSR</title>
+    <link href="http://yoursite.com/2020/05/11/De1CTF[2020]-NLFSR/"/>
+    <id>http://yoursite.com/2020/05/11/De1CTF[2020]-NLFSR/</id>
+    <published>2020-05-11T07:00:00.000Z</published>
+    <updated>2020-05-11T05:23:38.994Z</updated>
+    
+    <content type="html"><![CDATA[<p>首先看一下题目源码</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flag <span class="keyword">import</span> a, b, c, d, flag</span><br><span class="line"><span class="keyword">assert</span> flag == <span class="string">"De1CTF&#123;"</span> + <span class="string">''</span>.join([hex(i)[<span class="number">2</span>:] <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]) + <span class="string">"&#125;"</span></span><br><span class="line"><span class="keyword">assert</span> [len(bin(i)[<span class="number">2</span>:]) <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]] == [<span class="number">19</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">6</span>]</span><br><span class="line"></span><br><span class="line">ma, mb, mc, md = <span class="number">0x505a1</span>, <span class="number">0x40f3f</span>, <span class="number">0x1f02</span>, <span class="number">0x31</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lfsr</span><span class="params">(r, m)</span>:</span> <span class="keyword">return</span> ((r &lt;&lt; <span class="number">1</span>) &amp; <span class="number">0xffffff</span>) ^ (bin(r &amp; m).count(<span class="string">'1'</span>) % <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">combine</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">global</span> a, b, c, d</span><br><span class="line">    a = lfsr(a, ma)</span><br><span class="line">    b = lfsr(b, mb)</span><br><span class="line">    c = lfsr(c, mc)</span><br><span class="line">    d = lfsr(d, md)</span><br><span class="line">    [ao, bo, co, do] = [i &amp; <span class="number">1</span> <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]</span><br><span class="line">    <span class="keyword">return</span> (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genkey</span><span class="params">(nb)</span>:</span></span><br><span class="line">    s = <span class="string">''</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(nb*<span class="number">8</span>):</span><br><span class="line">        s += str(combine())</span><br><span class="line">    open(<span class="string">"data"</span>, <span class="string">"w+"</span>).write(s)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">genkey(<span class="number">128</span>*<span class="number">1024</span>)</span><br></pre></td></tr></table></figure><p>可以看出这个属于非线性组合生成器 </p><p>可以参考<a href="https://ctf-wiki.github.io/ctf-wiki/crypto/streamcipher/fsr/nfsr-zh/" target="_blank" rel="noopener">CTF-WIKI</a>关于相关攻击的介绍</p><p>回到本题目中，我们可以用脚本测试一下有哪些相关性，这里我们可以观察到有三组相关性</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">suma = <span class="number">0</span></span><br><span class="line">sumb = <span class="number">0</span></span><br><span class="line">sumc = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> ao <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line"><span class="keyword">for</span> bo <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line"><span class="keyword">for</span> co <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line"><span class="keyword">for</span> do <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">o = (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line">suma += ao==o</span><br><span class="line">sumb += (<span class="number">1</span>-(ao^bo))==o</span><br><span class="line">sumc += (co^do)==o</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> suma*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumb*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumc*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure><p>因此我们可以首先恢复出a，然后根据a恢复出b，同时c，d也能直接恢复</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;首先看一下题目源码&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+      <category term="LFSR" scheme="http://yoursite.com/tags/LFSR/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>De1CTF[2020]-ECDH</title>
+    <link href="http://yoursite.com/2020/05/11/De1CTF[2020]-ECDH/"/>
+    <id>http://yoursite.com/2020/05/11/De1CTF[2020]-ECDH/</id>
+    <published>2020-05-11T07:00:00.000Z</published>
+    <updated>2020-05-13T08:00:13.775Z</updated>
+    
+    <content type="html"><![CDATA[<p>定位到题目源码中最关键的部分——密钥交换</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mul</span><span class="params">(n,p)</span>:</span></span><br><span class="line">r = zero</span><br><span class="line">tmp = p</span><br><span class="line"><span class="keyword">while</span> <span class="number">0</span> &lt; n:</span><br><span class="line">    <span class="keyword">if</span> n &amp; <span class="number">1</span> == <span class="number">1</span>:</span><br><span class="line">        r = add(r,tmp)</span><br><span class="line">    n, tmp = n &gt;&gt; <span class="number">1</span>, add(tmp,tmp)</span><br><span class="line"><span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exchange</span><span class="params">(self)</span>:</span></span><br><span class="line">self.dosend(<span class="string">"Give me your key:\n"</span>) </span><br><span class="line">self.dosend(<span class="string">"X:\n"</span>) </span><br><span class="line">x = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">self.dosend(<span class="string">"Y:\n"</span>) </span><br><span class="line">y = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">key = (x,y)</span><br><span class="line">result = mul(self.secret,key)</span><br><span class="line">self.key = self.pointToKeys(result)</span><br><span class="line">self.dosend(<span class="string">"Exchange success\n"</span>)</span><br></pre></td></tr></table></figure><p>攻击点：<strong>没有验证我们发送的key是否在曲线上</strong></p><p>原理：针对椭圆曲线的点加以及倍点运算中，结果与b是无关的，因此我们可以构造曲线$E_i:y^2=x^3+ax+b_i$，其中$order(E_i)$含有小素数因子$p_i$，于是我们可以发送点$P*(order(E_i)/p_i)$，而在密钥交换后我们h很快的计算出对方的$secretkey\mod p_i$的值，记为$c_i$，在经过多次反复密钥交换后，可利用CRT还原出secret key。</p><p>具体代码可参考<a href="https://ctftime.org/writeup/14469" target="_blank" rel="noopener">https://ctftime.org/writeup/14469</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;定位到题目源码中最关键的部分——密钥交换&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
+    
+      <category term="ECDH" scheme="http://yoursite.com/tags/ECDH/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>RoarCTF[2019]-Easy Calc</title>
+    <link href="http://yoursite.com/2020/05/07/RoarCTF[2019]-Easy%20Calc/"/>
+    <id>http://yoursite.com/2020/05/07/RoarCTF[2019]-Easy%20Calc/</id>
+    <published>2020-05-07T07:00:00.000Z</published>
+    <updated>2020-05-13T08:01:17.520Z</updated>
+    
+    <content type="html"><![CDATA[<p>知识点：<strong>PHP的字符串解析特性</strong></p><p>参考文章：<a href="https://www.freebuf.com/column/207936.html" target="_blank" rel="noopener">https://www.freebuf.com/column/207936.html</a> </p><p>PHP会将URL或body中的查询字符串关联到<code>$_GET</code>或<code>$_POST</code>。例如：<code>/?foo=bar</code>代表<code>Array([foo] =&gt; &quot;bar&quot;)</code>。值得注意的是，查询字符串在解析的过程中会将某些字符删除或用下划线代替。例如，<code>/?%20news[id%00=42</code>会转换为<code>Array([news_id] =&gt; 42)</code>。如果一个IDS/IPS或WAF中有一条规则是当<code>news_id</code>参数的值是一个非数字的值则拦截，那么我们就可以用以下语句绕过： </p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;news.php?%20news[id%00&#x3D;42&quot;+AND+1&#x3D;0--</span><br></pre></td></tr></table></figure><p>上述PHP语句的参数<code>%20news[id%00</code>的值将存储到$_GET[“news_id”]中。 </p><p>有了这个知识，我们就可以绕过waf了。</p><p>同时，我们需要了解几个php的函数</p><ul><li>scandir($dir) , 列出dir下的所有文件和目录，默认升序，如要降序，则用scandir($dir, 1)</li><li>file_get_contents($file)，获取file的内容</li><li>var_dump($var)，输出变量的相关信息 </li></ul><p>ok，然后就是实操</p><p>第一步，获取目录下的所有文件</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(scandir(chr(47)))</span><br></pre></td></tr></table></figure><p>找到文件flagg</p><p>第二步，获取文件内容</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(file_get_contents(chr(47).chr(102).chr(49).chr(97).chr(103).chr(103)))</span><br></pre></td></tr></table></figure><p>成功拿到flag</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;知识点：&lt;strong&gt;PHP的字符串解析特性&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;参考文章：&lt;a href=&quot;https://www.freebuf.com/column/207936.html&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="WEB" scheme="http://yoursite.com/tags/WEB/"/>
+    
+      <category term="PHP" scheme="http://yoursite.com/tags/PHP/"/>
+    
+  </entry>
   
   <entry>
     <title>python2基于socket.socket类实现类似pwntools的交互方法</title>
@@ -47,6 +173,41 @@
   </entry>
   
   <entry>
+    <title>HCTF-admin</title>
+    <link href="http://yoursite.com/2020/05/05/HCTF-admin/"/>
+    <id>http://yoursite.com/2020/05/05/HCTF-admin/</id>
+    <published>2020-05-05T07:00:00.000Z</published>
+    <updated>2020-05-13T08:01:01.180Z</updated>
+    
+    <content type="html"><![CDATA[<p>参考文献</p><ol><li><a href="https://blog.csdn.net/weixin_44677409/article/details/100733581" target="_blank" rel="noopener">https://blog.csdn.net/weixin_44677409/article/details/100733581</a> </li><li><a href="https://www.jianshu.com/p/f92311564ad0" target="_blank" rel="noopener">https://www.jianshu.com/p/f92311564ad0</a> </li><li><a href="https://www.cnblogs.com/chrysanthemum/p/11722351.html" target="_blank" rel="noopener">https://www.cnblogs.com/chrysanthemum/p/11722351.html</a> </li></ol><p>从题目中我们可以找到github源码<a href="https://github.com/woadsl1234/hctf_flask" target="_blank" rel="noopener">https://github.com/woadsl1234/hctf_flask</a></p><p>这里可能需要学习一下flask框架<a href="https://www.w3cschool.cn/flask/" target="_blank" rel="noopener">w3cschool</a></p><p>三种解法</p><h3 id="flask-session-伪造"><a href="#flask-session-伪造" class="headerlink" title="flask session 伪造"></a>flask session 伪造</h3><p>flask的session是存储在客户端cookie中的，而且flask仅仅对数据进行了签名。众所周知的是，签名的作用是防篡改，而无法防止被读取。而flask并没有提供加密操作，所以其session的全部内容都是可以在客户端读取的，这就可能造成一些安全问题。<br> 具体参考:<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.leavesongs.com%2FPENETRATION%2Fclient-session-security.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/client-session-security.html</a></p><p>SECRET_KEY可以在config.py中获取 —— ckj123</p><p>flask中的session的加密和解密可以在<a href="https://github.com/noraj/flask-session-cookie-manager" target="_blank" rel="noopener">https://github.com/noraj/flask-session-cookie-manager</a> 这里获取到</p><p>对于原先的session先进行解密，修改name后再次加密，然后修改本地session即可。</p><h3 id="Unicode-欺骗"><a href="#Unicode-欺骗" class="headerlink" title="Unicode 欺骗"></a>Unicode 欺骗</h3><p>观察到函数strlower()在register以及change，login中出现了，而且是针对name的处理。</p><p>strlower实际调用的是nodeprep.prepare函数，而nodeprep是从Twisted模块导入的，在requirements.txt文件中发现<code>Twisted==10.2.0</code>，而官网最新已经到了19.7.0(2019/9)，版本差距很大，应该会存在漏洞。 可以参考<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fpaper.tuisec.win%2Fdetail%2Fa9ad1440249d95b" target="_blank" rel="noopener">https://paper.tuisec.win/detail/a9ad1440249d95b</a> </p><p>示例</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ᴬᴰᴹᴵᴺ -&gt; ADMIN -&gt; admin</span><br></pre></td></tr></table></figure><h3 id="条件竞争"><a href="#条件竞争" class="headerlink" title="条件竞争"></a>条件竞争</h3><p>之后再说</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;参考文献&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/weixin_44677409/article/details/100733581&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="WEB" scheme="http://yoursite.com/tags/WEB/"/>
+    
+      <category term="flask" scheme="http://yoursite.com/tags/flask/"/>
+    
+      <category term="unicode欺骗" scheme="http://yoursite.com/tags/unicode%E6%AC%BA%E9%AA%97/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Flask框架学习1</title>
     <link href="http://yoursite.com/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/"/>
     <id>http://yoursite.com/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/</id>
@@ -70,6 +231,35 @@
     
     
       <category term="Flask" scheme="http://yoursite.com/tags/Flask/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安恒4月赛-从not_RSA了解Paillier加密算法</title>
+    <link href="http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"/>
+    <id>http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/</id>
+    <published>2020-04-27T07:00:00.000Z</published>
+    <updated>2020-04-26T00:58:38.162Z</updated>
+    
+    <content type="html"><![CDATA[<p>首先了解一下<a href="https://blog.csdn.net/qq_26816591/article/details/82944696" target="_blank" rel="noopener">Paillier加密算法</a>，也是同态加密算法的一种</p><ol><li>选取大素数p，q （p，q相近）</li><li>n=p*q，λ = (p-1)*(q-1)</li><li>随机数g</li><li>PK=(n, g) , SK=λ</li></ol><p>加密：$C = g^{m} * r^{n}\mod n^{2}$, 其中r为随机数(1,n)</p><p>解密：$m=L(C^{λ}\mod n^{2})/L(g^{λ}\mod n^{2})\mod n$，其中L(x) = (x-1)/n</p><p>原题</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> getPrime <span class="keyword">as</span> getprime ,long_to_bytes,bytes_to_long,inverse</span><br><span class="line"><span class="keyword">from</span> secret <span class="keyword">import</span> flag,p,q</span><br><span class="line"><span class="keyword">from</span> sympy <span class="keyword">import</span> isprime,nextprime</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">m=bytes_to_long(flag)</span><br><span class="line">n=p*q</span><br><span class="line">g=n+<span class="number">1</span></span><br><span class="line">r=random.randint(<span class="number">1</span>,n)</span><br><span class="line"></span><br><span class="line">c=(pow(g,m,n*n)*pow(r,n,n*n))%(n*n)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"c=%d"</span>%(c)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"n=%d"</span>%(n)</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">c=29088911054711509252215615231015162998042579425917914434962376243477176757448053722602422672251758332052330100944900171067962180230120924963561223495629695702541446456981441239486190458125750543542379899722558637306740763104274377031599875275807723323394379557227060332005571272240560453811389162371812183549</span></span><br><span class="line"><span class="string">n=6401013954612445818165507289870580041358569258817613282142852881965884799988941535910939664068503367303343695466899335792545332690862283029809823423608093</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure><p>解法：利用yafu分解n得到p，q</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;首先了解一下&lt;a href=&quot;https://blog.csdn.net/qq_26816591/article/details/82944696&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
+    
+      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
     
   </entry>
   
@@ -103,35 +293,6 @@
       <category term="WEB" scheme="http://yoursite.com/tags/WEB/"/>
     
       <category term="SQL注入" scheme="http://yoursite.com/tags/SQL%E6%B3%A8%E5%85%A5/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>安恒4月赛-从not_RSA了解Paillier加密算法</title>
-    <link href="http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"/>
-    <id>http://yoursite.com/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/</id>
-    <published>2020-04-27T07:00:00.000Z</published>
-    <updated>2020-04-26T00:58:38.162Z</updated>
-    
-    <content type="html"><![CDATA[<p>首先了解一下<a href="https://blog.csdn.net/qq_26816591/article/details/82944696" target="_blank" rel="noopener">Paillier加密算法</a>，也是同态加密算法的一种</p><ol><li>选取大素数p，q （p，q相近）</li><li>n=p*q，λ = (p-1)*(q-1)</li><li>随机数g</li><li>PK=(n, g) , SK=λ</li></ol><p>加密：$C = g^{m} * r^{n}\mod n^{2}$, 其中r为随机数(1,n)</p><p>解密：$m=L(C^{λ}\mod n^{2})/L(g^{λ}\mod n^{2})\mod n$，其中L(x) = (x-1)/n</p><p>原题</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> getPrime <span class="keyword">as</span> getprime ,long_to_bytes,bytes_to_long,inverse</span><br><span class="line"><span class="keyword">from</span> secret <span class="keyword">import</span> flag,p,q</span><br><span class="line"><span class="keyword">from</span> sympy <span class="keyword">import</span> isprime,nextprime</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">m=bytes_to_long(flag)</span><br><span class="line">n=p*q</span><br><span class="line">g=n+<span class="number">1</span></span><br><span class="line">r=random.randint(<span class="number">1</span>,n)</span><br><span class="line"></span><br><span class="line">c=(pow(g,m,n*n)*pow(r,n,n*n))%(n*n)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"c=%d"</span>%(c)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"n=%d"</span>%(n)</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">c=29088911054711509252215615231015162998042579425917914434962376243477176757448053722602422672251758332052330100944900171067962180230120924963561223495629695702541446456981441239486190458125750543542379899722558637306740763104274377031599875275807723323394379557227060332005571272240560453811389162371812183549</span></span><br><span class="line"><span class="string">n=6401013954612445818165507289870580041358569258817613282142852881965884799988941535910939664068503367303343695466899335792545332690862283029809823423608093</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure><p>解法：利用yafu分解n得到p，q</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;首先了解一下&lt;a href=&quot;https://blog.csdn.net/qq_26816591/article/details/82944696&quot; target=&quot;_blank&quot;
-        
-      
-    
-    </summary>
-    
-    
-    
-      <category term="CTF" scheme="http://yoursite.com/tags/CTF/"/>
-    
-      <category term="密码学" scheme="http://yoursite.com/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"/>
     
   </entry>
   
