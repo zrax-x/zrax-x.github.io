@@ -18,10 +18,10 @@
 <meta name="description" content="堆叠注入 分析后端语句  由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from Flag(含有数据的表名，通过堆叠注入可知，需要注意的是，此时的||起到的作用是or的作用。  解法1： 1*,1 此时sql语句变为$select *,1||flag from F">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SUCTF-EasySQL">
-<meta property="og:url" content="https://yoursite.com/2020/04/27/SUCTF-EasySQL/index.html">
+<meta property="og:url" content="https://zrax-x.github.io/2020/04/27/SUCTF-EasySQL/index.html">
 <meta property="og:site_name" content="从零开始的博客">
 <meta property="og:description" content="堆叠注入 分析后端语句  由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from Flag(含有数据的表名，通过堆叠注入可知，需要注意的是，此时的||起到的作用是or的作用。  解法1： 1*,1 此时sql语句变为$select *,1||flag from F">
-<meta property="og:image" content="https://yoursite.com/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png">
+<meta property="og:image" content="https://zrax-x.github.io/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png">
 <meta property="article:published_time" content="2020-04-27T07:00:00.000Z">
 <meta property="article:modified_time" content="2020-04-27T07:14:06.812Z">
 <meta property="article:author" content="zraxx">
@@ -29,7 +29,7 @@
 <meta property="article:tag" content="WEB">
 <meta property="article:tag" content="SQL注入">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://yoursite.com/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png">
+<meta name="twitter:image" content="https://zrax-x.github.io/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -311,8 +311,8 @@
         <p><span>发布时间:</span>2020-04-27, 00:00:00</p>
         <p><span>最后更新:</span>2020-04-27, 00:14:06</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/04/27/SUCTF-EasySQL/" title="SUCTF-EasySQL">https://yoursite.com/2020/04/27/SUCTF-EasySQL/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://yoursite.com/2020/04/27/SUCTF-EasySQL/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/04/27/SUCTF-EasySQL/" title="SUCTF-EasySQL">https://zrax-x.github.io/2020/04/27/SUCTF-EasySQL/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/04/27/SUCTF-EasySQL/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
