@@ -15,18 +15,20 @@
 
 
 
-<meta name="description" content="作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。 由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntool">
+<meta name="description" content="Encrypt_Img题目本身不难，比赛时没有注意到两次加密的是同一张图片，所以没有做出来。 做法比较简单，因为两个plaintext长度不等（这里是相差一个字节）。因此通过异或plaintext1和ciphertext1的最后一个字节我们可以得到RC4此时产生key，而两次加密时RC4所产生的密钥流显然是一样的，因此可以用这个key去解出图片的第一个像素点，记为p1。同时我们知道两张图片是相同的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python2基于socket.socket类实现类似pwntools的交互方法">
-<meta property="og:url" content="https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:title" content="安恒五月赛BJD&amp;DAS">
+<meta property="og:url" content="https://zrax-x.github.io/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/index.html">
 <meta property="og:site_name" content="从零开始的博客">
-<meta property="og:description" content="作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。 由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntool">
-<meta property="article:published_time" content="2020-05-06T07:00:00.000Z">
-<meta property="article:modified_time" content="2020-05-06T11:22:22.728Z">
+<meta property="og:description" content="Encrypt_Img题目本身不难，比赛时没有注意到两次加密的是同一张图片，所以没有做出来。 做法比较简单，因为两个plaintext长度不等（这里是相差一个字节）。因此通过异或plaintext1和ciphertext1的最后一个字节我们可以得到RC4此时产生key，而两次加密时RC4所产生的密钥流显然是一样的，因此可以用这个key去解出图片的第一个像素点，记为p1。同时我们知道两张图片是相同的">
+<meta property="og:image" content="https://zrax-x.github.io/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/1591426710827.png">
+<meta property="article:published_time" content="2020-05-26T07:00:00.000Z">
+<meta property="article:modified_time" content="2020-06-06T07:10:38.522Z">
 <meta property="article:author" content="zraxx">
-<meta property="article:tag" content="socket">
-<meta property="article:tag" content="python">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="密码学">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zrax-x.github.io/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/1591426710827.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -60,7 +62,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>python2基于socket.socket类实现类似pwntools的交互方法 | 从零开始的博客</title>
+<title>安恒五月赛BJD&amp;DAS | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -245,11 +247,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-python2基于socket.socket类实现类似pwntools的交互方法" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-安恒五月赛BJD&amp;DAS" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" class="article-date">
-      <time datetime="2020-05-06T07:00:00.000Z" itemprop="datePublished">2020-05-06</time>
+      <a href="/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/" class="article-date">
+      <time datetime="2020-05-26T07:00:00.000Z" itemprop="datePublished">2020-05-26</time>
 </a>
 
 
@@ -264,7 +266,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      python2基于socket.socket类实现类似pwntools的交互方法
+      安恒五月赛BJD&amp;DAS
     </h1>
   
 
@@ -275,7 +277,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/socket/" rel="tag">socket</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -285,11 +287,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。</p>
-<p>由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntools中的交互方法。</p>
-<p>具体代码如下</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">'127.0.0.1'</span></span><br><span class="line">PORT = <span class="number">12233</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mysocket</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, myhost, myport)</span>:</span></span><br><span class="line">		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">		self.client.connect((myhost, myport))</span><br><span class="line">		self.fd = self.client.makefile(<span class="string">'rw'</span>, <span class="number">0</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">recvuntil</span><span class="params">(self, delim = <span class="string">"\n"</span>)</span>:</span></span><br><span class="line">		buf = <span class="string">''</span></span><br><span class="line">		<span class="keyword">while</span> <span class="keyword">not</span> buf.endswith(delim):</span><br><span class="line">			buf += self.fd.read(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> buf.strip()</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendline</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendlineafter</span><span class="params">(self, data, delim = <span class="string">"\n"</span>, debug = False)</span>:</span></span><br><span class="line">		buf = self.recvuntil(delim)</span><br><span class="line">		<span class="keyword">if</span> debug:</span><br><span class="line">			<span class="keyword">print</span> buf.strip()</span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">close</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.client.close()</span><br><span class="line"></span><br><span class="line">p = Mysocket(HOST, PORT)</span><br><span class="line">p.close()</span><br></pre></td></tr></table></figure>
-<p>后续将根据实际情况继续扩展</p>
+        <h2 id="Encrypt-Img"><a href="#Encrypt-Img" class="headerlink" title="Encrypt_Img"></a>Encrypt_Img</h2><p>题目本身不难，比赛时没有注意到两次加密的是同一张图片，所以没有做出来。</p>
+<p>做法比较简单，因为两个plaintext长度不等（这里是相差一个字节）。因此通过异或plaintext1和ciphertext1的最后一个字节我们可以得到RC4此时产生key，而两次加密时RC4所产生的密钥流显然是一样的，因此可以用这个key去解出图片的第一个像素点，记为p1。同时我们知道两张图片是相同的，因此通过p1和第一次加密的图片的第一个像素点，我们又可以拿到下一个key，用它来解密第二次加密时的第二个像素点，以此类推，最终解出整张图片。</p>
+<p>赛后简单的写了下脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># author : zraxx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> array</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line">Plaintext1 = <span class="string">"RC4IsInteresting"</span></span><br><span class="line"></span><br><span class="line">enc1_file = Image.open(<span class="string">r"enc1.png"</span>)</span><br><span class="line">enc2_file = Image.open(<span class="string">r"enc2.png"</span>)</span><br><span class="line">img1 = array(enc1_file)</span><br><span class="line">img2 = array(enc2_file)</span><br><span class="line">a, b, _ = img1.shape</span><br><span class="line">ciphertext1 = <span class="number">12078640933356268898100798377710191641</span></span><br><span class="line">m = ord(<span class="string">'g'</span>)</span><br><span class="line">c = int(hex(ciphertext1).strip(<span class="string">'L'</span>)[<span class="number">-2</span>:],<span class="number">16</span>)</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> range(<span class="number">0</span>, a):</span><br><span class="line">    <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">0</span>, b):</span><br><span class="line">        pixel2 = img2[x, y]</span><br><span class="line">        pixel1 = img1[x, y]</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">3</span>):</span><br><span class="line">            k = (c ^ m)</span><br><span class="line">            c = pixel2[i] <span class="comment"># get ciphertext of img2</span></span><br><span class="line">            pixel2[i] = pixel2[i] ^ k  </span><br><span class="line">            m = pixel2[i] <span class="comment"># get plaintext of img2 and img1</span></span><br><span class="line">            c = pixel1[i] <span class="comment"># get ciphertext of img1</span></span><br><span class="line">        img2[x][y] = pixel2</span><br><span class="line">enc = Image.fromarray(img2)</span><br><span class="line">enc.save(<span class="string">"flag.png"</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="backpacker"><a href="#backpacker" class="headerlink" title="backpacker"></a>backpacker</h2><p>这是一个利用LLL的攻击，比赛时还没有接触过这类题目，所以没有解出来。之后在网上搜索资料看到相关的攻击方法，记录一下。</p>
+<p><img src="/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/1591426710827.png" alt="theory"></p>
+<p>按文中给出的方法构造矩阵，然后求LLL，对其中的行向量（只包含-1或1）进行处理（-1转为0），即得到了我们的明文。</p>
 
       
     </div>
@@ -298,13 +302,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/">python2基于socket.socket类实现类似pwntools的交互方法</a></p>
+        <p><span>本文标题:</span><a href="/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/">安恒五月赛BJD&amp;DAS</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
-        <p><span>发布时间:</span>2020-05-06, 00:00:00</p>
-        <p><span>最后更新:</span>2020-05-06, 04:22:22</p>
+        <p><span>发布时间:</span>2020-05-26, 00:00:00</p>
+        <p><span>最后更新:</span>2020-06-06, 00:10:38</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" title="python2基于socket.socket类实现类似pwntools的交互方法">https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/" title="安恒五月赛BJD&amp;DAS">https://zrax-x.github.io/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&amp;DAS/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&amp;DAS/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -316,16 +320,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/">
-                    RoarCTF[2019]-Easy Calc
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/">
-                    Flask框架学习1
+                <a href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/">
+                    De1CTF[2020]-easyRSA
                 </a>
             </div>
         
@@ -337,7 +335,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Encrypt-Img"><span class="toc-number">1.</span> <span class="toc-text">Encrypt_Img</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#backpacker"><span class="toc-number">2.</span> <span class="toc-text">backpacker</span></a></li></ol>
         
     </div>
     <style>
@@ -373,7 +371,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"python2基于socket.socket类实现类似pwntools的交互方法　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"安恒五月赛BJD&DAS　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -395,15 +393,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/" title="上一篇: RoarCTF[2019]-Easy Calc">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/" title="下一篇: Flask框架学习1">
+            <a href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/" title="下一篇: De1CTF[2020]-easyRSA">
                 <i class="fa fa-angle-right"></i>
             </a>
         

