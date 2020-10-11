@@ -246,6 +246,83 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-HCTF-admin" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/05/HCTF-admin/" class="article-date">
+      <time datetime="2020-05-05T07:00:00.000Z" itemprop="datePublished">2020-05-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/05/HCTF-admin/">HCTF-admin</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>参考文献</p>
+<ol>
+<li><a href="https://blog.csdn.net/weixin_44677409/article/details/100733581" target="_blank" rel="noopener">https://blog.csdn.net/weixin_44677409/article/details/100733581</a> </li>
+<li><a href="https://www.jianshu.com/p/f92311564ad0" target="_blank" rel="noopener">https://www.jianshu.com/p/f92311564ad0</a> </li>
+<li><a href="https://www.cnblogs.com/chrysanthemum/p/11722351.html" target="_blank" rel="noopener">https://www.cnblogs.com/chrysanthemum/p/11722351.html</a> </li>
+</ol>
+<p>从题目中我们可以找到github源码<a href="https://github.com/woadsl1234/hctf_flask" target="_blank" rel="noopener">https://github.com/woadsl1234/hctf_flask</a></p>
+<p>这里可能需要学习一下flask框架<a href="https://www.w3cschool.cn/flask/" target="_blank" rel="noopener">w3cschool</a></p>
+<p>三种解法</p>
+<h3 id="flask-session-伪造"><a href="#flask-session-伪造" class="headerlink" title="flask session 伪造"></a>flask session 伪造</h3><p>flask的session是存储在客户端cookie中的，而且flask仅仅对数据进行了签名。众所周知的是，签名的作用是防篡改，而无法防止被读取。而flask并没有提供加密操作，所以其session的全部内容都是可以在客户端读取的，这就可能造成一些安全问题。<br> 具体参考:<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.leavesongs.com%2FPENETRATION%2Fclient-session-security.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/client-session-security.html</a></p>
+<p>SECRET_KEY可以在config.py中获取 —— ckj123</p>
+<p>flask中的session的加密和解密可以在<a href="https://github.com/noraj/flask-session-cookie-manager" target="_blank" rel="noopener">https://github.com/noraj/flask-session-cookie-manager</a> 这里获取到</p>
+<p>对于原先的session先进行解密，修改name后再次加密，然后修改本地session即可。</p>
+<h3 id="Unicode-欺骗"><a href="#Unicode-欺骗" class="headerlink" title="Unicode 欺骗"></a>Unicode 欺骗</h3><p>观察到函数strlower()在register以及change，login中出现了，而且是针对name的处理。</p>
+<p>strlower实际调用的是nodeprep.prepare函数，而nodeprep是从Twisted模块导入的，在requirements.txt文件中发现<code>Twisted==10.2.0</code>，而官网最新已经到了19.7.0(2019/9)，版本差距很大，应该会存在漏洞。 可以参考<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fpaper.tuisec.win%2Fdetail%2Fa9ad1440249d95b" target="_blank" rel="noopener">https://paper.tuisec.win/detail/a9ad1440249d95b</a> </p>
+<p>示例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ᴬᴰᴹᴵᴺ -&gt; ADMIN -&gt; admin</span><br></pre></td></tr></table></figure>
+<h3 id="条件竞争"><a href="#条件竞争" class="headerlink" title="条件竞争"></a>条件竞争</h3><p>之后再说</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flask/" rel="tag">flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unicode%E6%AC%BA%E9%AA%97/" rel="tag">unicode欺骗</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-SUCTF-EasySQL" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
