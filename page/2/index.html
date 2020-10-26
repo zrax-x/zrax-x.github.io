@@ -246,6 +246,148 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-RoarCTF[2019]-Easy Calc" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/" class="article-date">
+      <time datetime="2020-05-07T07:00:00.000Z" itemprop="datePublished">2020-05-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/">RoarCTF[2019]-Easy Calc</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>知识点：<strong>PHP的字符串解析特性</strong></p>
+<p>参考文章：<a href="https://www.freebuf.com/column/207936.html" target="_blank" rel="noopener">https://www.freebuf.com/column/207936.html</a> </p>
+<p>PHP会将URL或body中的查询字符串关联到<code>$_GET</code>或<code>$_POST</code>。例如：<code>/?foo=bar</code>代表<code>Array([foo] =&gt; &quot;bar&quot;)</code>。值得注意的是，查询字符串在解析的过程中会将某些字符删除或用下划线代替。例如，<code>/?%20news[id%00=42</code>会转换为<code>Array([news_id] =&gt; 42)</code>。如果一个IDS/IPS或WAF中有一条规则是当<code>news_id</code>参数的值是一个非数字的值则拦截，那么我们就可以用以下语句绕过： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;news.php?%20news[id%00&#x3D;42&quot;+AND+1&#x3D;0--</span><br></pre></td></tr></table></figure>
+<p>上述PHP语句的参数<code>%20news[id%00</code>的值将存储到$_GET[“news_id”]中。 </p>
+<p>有了这个知识，我们就可以绕过waf了。</p>
+<p>同时，我们需要了解几个php的函数</p>
+<ul>
+<li>scandir($dir) , 列出dir下的所有文件和目录，默认升序，如要降序，则用scandir($dir, 1)</li>
+<li>file_get_contents($file)，获取file的内容</li>
+<li>var_dump($var)，输出变量的相关信息 </li>
+</ul>
+<p>ok，然后就是实操</p>
+<p>第一步，获取目录下的所有文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(scandir(chr(47)))</span><br></pre></td></tr></table></figure>
+<p>找到文件flagg</p>
+<p>第二步，获取文件内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num&#x3D;1;var_dump(file_get_contents(chr(47).chr(102).chr(49).chr(97).chr(103).chr(103)))</span><br></pre></td></tr></table></figure>
+<p>成功拿到flag</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-python2基于socket.socket类实现类似pwntools的交互方法" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/" class="article-date">
+      <time datetime="2020-05-06T07:00:00.000Z" itemprop="datePublished">2020-05-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/">python2基于socket.socket类实现类似pwntools的交互方法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>作为一名密码学选手，经常要用到python中的socket库来进行交互。然而，用过pwntools的都知道，它实现的交互方法比socket要友好的多了，类似sendline，sendafter方法等。</p>
+<p>由于我的电脑是window系统，没能成功装上pwntools库，因此要用pwntools就需要开虚拟机，本人比较懒，就自己重新基于socket.socket类重新写了一个类，以实现类似pwntools中的交互方法。</p>
+<p>具体代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">'127.0.0.1'</span></span><br><span class="line">PORT = <span class="number">12233</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mysocket</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, myhost, myport)</span>:</span></span><br><span class="line">		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">		self.client.connect((myhost, myport))</span><br><span class="line">		self.fd = self.client.makefile(<span class="string">'rw'</span>, <span class="number">0</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">recvuntil</span><span class="params">(self, delim = <span class="string">"\n"</span>)</span>:</span></span><br><span class="line">		buf = <span class="string">''</span></span><br><span class="line">		<span class="keyword">while</span> <span class="keyword">not</span> buf.endswith(delim):</span><br><span class="line">			buf += self.fd.read(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> buf.strip()</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendline</span><span class="params">(self, data)</span>:</span></span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">sendlineafter</span><span class="params">(self, data, delim = <span class="string">"\n"</span>, debug = False)</span>:</span></span><br><span class="line">		buf = self.recvuntil(delim)</span><br><span class="line">		<span class="keyword">if</span> debug:</span><br><span class="line">			<span class="keyword">print</span> buf.strip()</span><br><span class="line">		self.fd.write(data + <span class="string">'\n'</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">close</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.client.close()</span><br><span class="line"></span><br><span class="line">p = Mysocket(HOST, PORT)</span><br><span class="line">p.close()</span><br></pre></td></tr></table></figure>
+<p>后续将根据实际情况继续扩展</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/socket/" rel="tag">socket</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-Flask框架学习1" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -434,75 +576,6 @@
 
 
   
-    <article id="post-SUCTF-EasySQL" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/04/27/SUCTF-EasySQL/" class="article-date">
-      <time datetime="2020-04-27T07:00:00.000Z" itemprop="datePublished">2020-04-27</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/27/SUCTF-EasySQL/">SUCTF-EasySQL</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>堆叠注入</p>
-<p>分析后端语句 </p>
-<p>由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from Flag(含有数据的表名，通过堆叠注入可知，需要注意的是，此时的||起到的作用是or的作用。 </p>
-<p>解法1：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*,1</span><br></pre></td></tr></table></figure>
-<p>此时sql语句变为<code>$select *,1||flag from Flag</code></p>
-<p>解法2：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1;set sql_mode&#x3D;pipes_as_concat;select 1</span><br></pre></td></tr></table></figure>
-<p>其中set sql_mode=pipes_as_concat;的作用为将||的作用由or变为拼接字符串 ，因此能将前一个字段的查询结果和后一个字段查询结果进行拼接 </p>
-<p><img src="/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png" alt="运行截图"></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-安恒4月赛-从not_RSA了解Paillier加密算法" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -555,6 +628,75 @@
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-SUCTF-EasySQL" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/27/SUCTF-EasySQL/" class="article-date">
+      <time datetime="2020-04-27T07:00:00.000Z" itemprop="datePublished">2020-04-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/04/27/SUCTF-EasySQL/">SUCTF-EasySQL</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>堆叠注入</p>
+<p>分析后端语句 </p>
+<p>由于输入1有回显，0无回显，所以可能存在||的操作，也就是select 输入的数据||内置的一个列名 from 表名，进一步进行猜测即为select post进去的数据||flag from Flag(含有数据的表名，通过堆叠注入可知，需要注意的是，此时的||起到的作用是or的作用。 </p>
+<p>解法1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*,1</span><br></pre></td></tr></table></figure>
+<p>此时sql语句变为<code>$select *,1||flag from Flag</code></p>
+<p>解法2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1;set sql_mode&#x3D;pipes_as_concat;select 1</span><br></pre></td></tr></table></figure>
+<p>其中set sql_mode=pipes_as_concat;的作用为将||的作用由or变为拼接字符串 ，因此能将前一个字段的查询结果和后一个字段查询结果进行拼接 </p>
+<p><img src="/2020/04/27/SUCTF-EasySQL/SUCTF-easysql.png" alt="运行截图"></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
     </div>
 
       
@@ -877,151 +1019,9 @@
 
 
   
-    <article id="post-VolgaCTF-Keygreed" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/04/17/VolgaCTF-Keygreed/" class="article-date">
-      <time datetime="2020-04-18T00:52:57.376Z" itemprop="datePublished">2020-04-17</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/17/VolgaCTF-Keygreed/">VolgaCTF-2020-Keygreed-WP</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>关于mov attack，可以参考这篇<a href="https://blog.csdn.net/qq_26060285/article/details/90482755" target="_blank" rel="noopener">博客</a></p>
-<p>下面简单说说这道题</p>
-<p>首先我们可以验证这个椭圆曲线是超奇异的(supersingular)，在这里 $p^2 - 1 = 0\mod p.order()$</p>
-<blockquote>
-<p>The MOV attack works by using the <a href="https://en.wikipedia.org/wiki/Weil_pairing" target="_blank" rel="noopener">Weil pairing</a> (e: $E[m]×E[m]→μ_m$) to translate solving the dlog in the elliptic curve group to solving it in the multiplicative group $μ_m$ (group of m-th roots of unity), where sub-exponential algorithms exist. </p>
-<p>Then, working in $F_{p^k}$ (extension of $F_p$), take Q to be a point in $E[m]$ (group of m-torsion points), such that P,Q are linearly independent, which can be constructed. Finally, take $e(P,Q)$ and $e(xP,Q)=e(P,Q)^x$ (due to bilinearity of e) as a dlog instance over a fininte field (m-th roots of unity), this is true by the non-degeneracy of the Weil pairing.</p>
-</blockquote>
-<p>因此这里的关键就是找到点Q，然后便把问题转化为了一个离散对数问题，寻找点Q的步骤如下</p>
-<ol>
-<li>在$F_{p^k}$上随机选取一个点，记为$R$</li>
-<li>计算$m=R.order()$</li>
-<li>计算$d=gcd(m,P.order)$</li>
-<li>得到$Q=(m//d)*R$</li>
-</ol>
-<p>得到$Q$后，由于$Q=k*P$，因此问题就变得简单了很多。</p>
-<p>好了，到了这里，事实上我还是没有搞懂MOV attack的具体原理，也没有讲清楚这道题的具体解法。不过没关系，后续可以慢慢理解，而且我认为我已经把MOV attack中的最重要的一个环节简单的阐述了一下。</p>
-<p>Anyway，如果想看看这道题的具体解法，可以参考这篇<a href="https://sectt.github.io/writeups/Volga20/crypto_keygreed/README" target="_blank" rel="noopener">WriteUp</a></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECC/" rel="tag">ECC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MOV-attack/" rel="tag">MOV attack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-Linux下批量kill多个同名进程" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/" class="article-date">
-      <time datetime="2020-04-17T06:54:25.292Z" itemprop="datePublished">2020-04-16</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/">Linux下批量kill多个同名进程</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <blockquote>
-<p>循序渐进</p>
-<p>第一步：ps -ef | grep [name] 筛选出同名的所有进程</p>
-<p>第二步：ps -ef | grep [name] | grep -v grep 将第一步中的grep进程删除</p>
-<p>第三步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 截断获取所有的pid号，这里cut的作用就是截取，1-5的作用是根据下标取出pid号，类似于python的切片，需要根据实际情况来调整</p>
-<p>第四步：ps -ef | grep [name] | grep -v grep | cut -c 1-5 | xargs kill -9 将之前的所有pid作为kill命令的参数 </p>
-</blockquote>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
     </nav>
   
 </div>
