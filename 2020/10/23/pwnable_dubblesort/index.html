@@ -21,15 +21,15 @@
 <meta property="og:url" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/index.html">
 <meta property="og:site_name" content="从零开始的博客">
 <meta property="og:description" content="查看逻辑，发现主要为冒泡排序。漏洞点为两个，第一个比较明显，就是在输入数字的时候存在栈溢出。 1234567891011121314151617__isoc99_scanf((int)&quot;%u&quot;, (int)&amp;v12);v3 &#x3D; v12;if ( v12 )&amp;#123;  v4 &#x3D; &amp;v13;  v5 &#x3D; 0;  do  &amp;#123;    __printf_chk(1, (int">
-<meta property="og:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/Users/msi1/AppData/Local/Temp/1603693654936.png">
-<meta property="og:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/Users/msi1/AppData/Local/Temp/1603693801036.png">
+<meta property="og:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/1603693654936.png">
+<meta property="og:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/1603693801036.png">
 <meta property="article:published_time" content="2020-10-23T07:00:00.000Z">
-<meta property="article:modified_time" content="2020-10-26T06:39:04.045Z">
+<meta property="article:modified_time" content="2020-10-26T06:50:36.642Z">
 <meta property="article:author" content="zraxx">
 <meta property="article:tag" content="PWN">
 <meta property="article:tag" content="ROP">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/Users/msi1/AppData/Local/Temp/1603693654936.png">
+<meta name="twitter:image" content="https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/1603693654936.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -293,9 +293,9 @@
 <p>第二点比较隐蔽，在输入name后，程序会打印name，但是这里就存在泄露。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"What your name :"</span>);</span><br><span class="line"><span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x40</span>u);</span><br><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"Hello %s,How many numbers do you what to sort :"</span>);</span><br></pre></td></tr></table></figure>
 <p>因为read时不会给buf带上\x00，因此就会泄露栈上的后续地址的内容。通过调试，可以看到在输入的字符串后的第25个字节开始就是和libc地址有关的信息</p>
-<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693654936.png" alt="1603693654936"></p>
+<p><img src="/2020/10/23/pwnable_dubblesort/1603693654936.png" alt="1603693654936"></p>
 <p>同时通过查看vmmap可以计算出两者的地址偏移值为0x1b0000</p>
-<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693801036.png" alt="1603693801036"></p>
+<p><img src="/2020/10/23/pwnable_dubblesort/1603693801036.png" alt="1603693801036"></p>
 <p>有了libc基址后我们就可以愉快的计算出system和/bin/sh的地址，完成rop。</p>
 <p>但是查看程序开启的保护，发现有canary，这导致栈溢出无法进行，因为我们不知道栈上的magic num值。于是这里需要一个技巧（网上查到的）</p>
 <h3 id="scanf中的一个机制"><a href="#scanf中的一个机制" class="headerlink" title="scanf中的一个机制"></a>scanf中的一个机制</h3><p>当我们输入+或者-号时程序会读取成功，但同时不会对变量值进行赋值，这样就能保证在对magic_num进行赋值时我们可以保持原来的值不变就能成功绕过canary保护。</p>
@@ -313,7 +313,7 @@
         <p><span>本文标题:</span><a href="/2020/10/23/pwnable_dubblesort/">pwnable.tw dubblesort</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
         <p><span>发布时间:</span>2020-10-23, 00:00:00</p>
-        <p><span>最后更新:</span>2020-10-25, 23:39:04</p>
+        <p><span>最后更新:</span>2020-10-25, 23:50:36</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2020/10/23/pwnable_dubblesort/" title="pwnable.tw dubblesort">https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/</a>
             <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/10/23/pwnable_dubblesort/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

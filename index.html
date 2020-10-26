@@ -280,9 +280,9 @@
 <p>第二点比较隐蔽，在输入name后，程序会打印name，但是这里就存在泄露。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"What your name :"</span>);</span><br><span class="line"><span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x40</span>u);</span><br><span class="line">__printf_chk(<span class="number">1</span>, (<span class="keyword">int</span>)<span class="string">"Hello %s,How many numbers do you what to sort :"</span>);</span><br></pre></td></tr></table></figure>
 <p>因为read时不会给buf带上\x00，因此就会泄露栈上的后续地址的内容。通过调试，可以看到在输入的字符串后的第25个字节开始就是和libc地址有关的信息</p>
-<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693654936.png" alt="1603693654936"></p>
+<p><img src="/2020/10/23/pwnable_dubblesort/1603693654936.png" alt="1603693654936"></p>
 <p>同时通过查看vmmap可以计算出两者的地址偏移值为0x1b0000</p>
-<p><img src="/2020/10/23/pwnable_dubblesort/Users\msi1\AppData\Local\Temp\1603693801036.png" alt="1603693801036"></p>
+<p><img src="/2020/10/23/pwnable_dubblesort/1603693801036.png" alt="1603693801036"></p>
 <p>有了libc基址后我们就可以愉快的计算出system和/bin/sh的地址，完成rop。</p>
 <p>但是查看程序开启的保护，发现有canary，这导致栈溢出无法进行，因为我们不知道栈上的magic num值。于是这里需要一个技巧（网上查到的）</p>
 <h3 id="scanf中的一个机制"><a href="#scanf中的一个机制" class="headerlink" title="scanf中的一个机制"></a>scanf中的一个机制</h3><p>当我们输入+或者-号时程序会读取成功，但同时不会对变量值进行赋值，这样就能保证在对magic_num进行赋值时我们可以保持原来的值不变就能成功绕过canary保护。</p>
