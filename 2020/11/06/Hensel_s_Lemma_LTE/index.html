@@ -15,11 +15,16 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="从零开始的博客">
-<meta property="og:url" content="https://zrax-x.github.io/archives/2020/04/index.html">
+<meta name="description" content="Hensel’s Lemmahttps:&#x2F;&#x2F;www.geeksforgeeks.org&#x2F;hensels-lemma  Hensel’s Lemma is a result that stipulates conditions for roots of polynomials modulo powers of primes to be “lifted” to roots modulo higher">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hensel’s Lemma &amp; LTE (Lifting The Exponent)">
+<meta property="og:url" content="https://zrax-x.github.io/2020/11/06/Hensel_s_Lemma_LTE/index.html">
 <meta property="og:site_name" content="从零开始的博客">
+<meta property="og:description" content="Hensel’s Lemmahttps:&#x2F;&#x2F;www.geeksforgeeks.org&#x2F;hensels-lemma  Hensel’s Lemma is a result that stipulates conditions for roots of polynomials modulo powers of primes to be “lifted” to roots modulo higher">
+<meta property="article:published_time" content="2020-11-06T08:00:00.000Z">
+<meta property="article:modified_time" content="2020-11-06T07:38:43.926Z">
 <meta property="article:author" content="zraxx">
+<meta property="article:tag" content="数论">
 <meta name="twitter:card" content="summary">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -54,7 +59,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Archives: 2020/4 | 从零开始的博客</title>
+<title>Hensel’s Lemma &amp; LTE (Lifting The Exponent) | 从零开始的博客</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -64,8 +69,8 @@
         fancybox: true,
         animate: true,
         isHome: false,
-        isPost: false,
-        isArchive: true,
+        isPost: true,
+        isArchive: false,
         isTag: false,
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
@@ -239,287 +244,186 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap">
+      <div class="body-wrap"><article id="post-Hensel_s_Lemma_LTE" class="article article-type-post" itemscope itemprop="blogPost">
   
+    <div class="article-meta">
+      <a href="/2020/11/06/Hensel_s_Lemma_LTE/" class="article-date">
+      <time datetime="2020-11-06T08:00:00.000Z" itemprop="datePublished">2020-11-06</time>
+</a>
+
+
+    </div>
   
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Hensel’s Lemma &amp; LTE (Lifting The Exponent)
+    </h1>
+  
+
+      </header>
       
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E8%AE%BA/" rel="tag">数论</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
     
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/27/SUCTF-EasySQL/" class="archive-article-date">
-      <time datetime="2020-04-27T07:00:00.000Z" itemprop="datePublished">04-27</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/27/SUCTF-EasySQL/">SUCTF-EasySQL</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
+    <div class="article-entry" itemprop="articleBody">
+      
           
+        <h2 id="Hensel’s-Lemma"><a href="#Hensel’s-Lemma" class="headerlink" title="Hensel’s Lemma"></a>Hensel’s Lemma</h2><p><a href="https://www.geeksforgeeks.org/hensels-lemma" target="_blank" rel="noopener">https://www.geeksforgeeks.org/hensels-lemma</a></p>
+<blockquote>
+<p><strong>Hensel’s Lemma</strong> is a result that stipulates conditions for roots of polynomials modulo powers of primes to be “lifted” to roots modulo higher powers. The lifting method outlined in the proof is reminiscent of <strong>Newton’s Method</strong> for solving equations. Say the equations of the below type is to be solved: </p>
+</blockquote>
+<p>​                                    $x^3 - a = 0 \ mod \ p^k$</p>
+<blockquote>
+<p>The idea is to use <strong>Hensel’s Lemma</strong> to solve this type of congruence. It is also known as Hensel’s “lifting” lemma, which is a result of <a href="https://www.geeksforgeeks.org/modular-arithmetic/" target="_blank" rel="noopener">modular arithmetic</a>. If <strong>f</strong> is a polynomial function and <strong>p</strong> is a <a href="https://www.geeksforgeeks.org/prime-numbers/" target="_blank" rel="noopener">Prime Number</a>, then if <strong>f(a1) = 0 (mod p)</strong> and <strong>[f’(a1)] mod p != 0</strong>, then it’s possible to “lift” this solution to the solution for <strong>f(x) = 0 (mod pk)</strong> by using the below <a href="http://www.geeksforgeeks.org/recursion/" target="_blank" rel="noopener">recursion</a>. Note that the <strong>[f’(a1)]-1</strong> refers to the <a href="https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/" target="_blank" rel="noopener">modular inverse</a> of <strong>f ‘(a1) modulo p</strong>. </p>
+</blockquote>
+<p>​                        $a_{k+1} = a_k - f(a_k) * [f’(a_1)]^{-1} \ mod \ p^{k+1}$</p>
+<h2 id="LTE-Lifting-The-Exponent"><a href="#LTE-Lifting-The-Exponent" class="headerlink" title="LTE (Lifting The Exponent)"></a>LTE (Lifting The Exponent)</h2><p><a href="https://brilliant.org/wiki/lifting-the-exponent" target="_blank" rel="noopener">https://brilliant.org/wiki/lifting-the-exponent</a></p>
+<p><a href="https://www.cnblogs.com/Eufisky/p/9333142.html" target="_blank" rel="noopener">https://www.cnblogs.com/Eufisky/p/9333142.html</a></p>
+<p>Let $p$ be a prime and $n$ a nonzero integer. Then we define $v_p(n)$ to be the exponent of $p$ in the prime factorization of $n$. That is, </p>
+<p>$v_p(n)=k⟺p^k∣n \ and \ p^{k+1}∤n. $</p>
+<p>Let $p$ be a prime, $x$ and $y$ integers, $n$ a positive integer, and suppose that $p|(x-y)$ but $p\nmid x$ and $p\nmid y$. Then </p>
+<ul>
+<li>if $p$ is odd,  $v_p(x^n−y^n)=v_p(x−y)+v_p(n); $</li>
+<li>for $p = 2$ and even $n$, $v_2(x^n-y^n) = v_2(x-y) + v_2(n) + v_2(x+y) - 1$. </li>
+</ul>
+<p>Notice that if $n$ is odd, we can substitute $-y$ for $y$ in (1) to obtain </p>
+<p>$v_p(x^n+y^n)=v_p(x+y)+v_p(n) $ </p>
+<p>if $p|(x+y)$ </p>
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/11/06/Hensel_s_Lemma_LTE/">Hensel’s Lemma &amp; LTE (Lifting The Exponent)</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">zraxx</a></p>
+        <p><span>发布时间:</span>2020-11-06, 00:00:00</p>
+        <p><span>最后更新:</span>2020-11-05, 23:38:43</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/11/06/Hensel_s_Lemma_LTE/" title="Hensel’s Lemma &amp; LTE (Lifting The Exponent)">https://zrax-x.github.io/2020/11/06/Hensel_s_Lemma_LTE/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://zrax-x.github.io/2020/11/06/Hensel_s_Lemma_LTE/　　作者: zraxx" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
     </div>
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/10/26/bytedance_2020_easyheap/">
+                    bytedance 2020 easyheap
+                </a>
+            </div>
+        
+    </nav>
+
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/" class="archive-article-date">
-      <time datetime="2020-04-27T07:00:00.000Z" itemprop="datePublished">04-27</time>
-</a>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hensel’s-Lemma"><span class="toc-number">1.</span> <span class="toc-text">Hensel’s Lemma</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LTE-Lifting-The-Exponent"><span class="toc-number">2.</span> <span class="toc-text">LTE (Lifting The Exponent)</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
 
 
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
         </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">安恒4月赛-从not_RSA了解Paillier加密算法</a>
-    </h1>
-  
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Hensel’s Lemma & LTE (Lifting The Exponent)　| 从零开始的博客　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
 
-        <div class="article-info info-on-archive">
-          
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/10/26/bytedance_2020_easyheap/" title="下一篇: bytedance 2020 easyheap">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
     </div>
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/" class="archive-article-date">
-      <time datetime="2020-04-25T07:00:00.000Z" itemprop="datePublished">04-25</time>
-</a>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/11/06/Hensel_s_Lemma_LTE/">Hensel’s Lemma & LTE (Lifting The Exponent)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/26/bytedance_2020_easyheap/">bytedance 2020 easyheap</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/23/pwnable_dubblesort/">pwnable.tw dubblesort</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/22/pwnable_3x17/">pwnable.tw 3x17</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/12/pwnable_calc/">pwnable.tw calc</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/11/pwnable_orw/">pwnable.tw orw</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/10/11/pwnable_start/">pwnable.tw start</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/07/12/2020-%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4-UnSafeAES-Forbidden%20Attack/">2020 第五空间 UnSafeAES Forbidden Attack</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/%E5%AE%89%E6%81%92%E4%BA%94%E6%9C%88%E8%B5%9BBJD&DAS/">安恒五月赛BJD&DAS</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/De1CTF%5B2020%5D-easyRSA/">De1CTF[2020]-easyRSA</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/De1CTF%5B2020%5D-ECDH/">De1CTF[2020]-ECDH</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/De1CTF%5B2020%5D-NLFSR/">De1CTF[2020]-NLFSR</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/RoarCTF%5B2019%5D-Easy%20Calc/">RoarCTF[2019]-Easy Calc</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/06/python2%E5%9F%BA%E4%BA%8Esocket.socket%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E4%BC%BCpwntools%E7%9A%84%E4%BA%A4%E4%BA%92%E6%96%B9%E6%B3%95/">python2基于socket.socket类实现类似pwntools的交互方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/Flask%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A01/">Flask框架学习1</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/HCTF-admin/">HCTF-admin</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/27/SUCTF-EasySQL/">SUCTF-EasySQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/27/%E5%AE%89%E6%81%924%E6%9C%88%E8%B5%9B-%E4%BB%8Enot_RSA%E4%BA%86%E8%A7%A3Paillier%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">安恒4月赛-从not_RSA了解Paillier加密算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/">强网杯-随便注</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/">2020数字中国虎符CTF之GM&McEliece</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">Linux Hook技术介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/Linux%E7%BB%88%E7%AB%AF%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%E7%9A%84%E9%A2%9C%E8%89%B2/">Linux终端控制打印字符的颜色</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/VolgaCTF-Keygreed/">VolgaCTF-2020-Keygreed-WP</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/">Linux下批量kill多个同名进程</a></li></ul>
 
 
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/25/%E5%BC%BA%E7%BD%91%E6%9D%AF-%E9%9A%8F%E4%BE%BF%E6%B3%A8/">强网杯-随便注</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/" class="archive-article-date">
-      <time datetime="2020-04-20T07:00:00.000Z" itemprop="datePublished">04-20</time>
-</a>
 
 
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/20/2020%E6%95%B0%E5%AD%97%E4%B8%AD%E5%9B%BD%E8%99%8E%E7%AC%A6CTF%E4%B9%8BGM&McEliece/">2020数字中国虎符CTF之GM&amp;McEliece</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/" class="archive-article-date">
-      <time datetime="2020-04-18T07:00:00.000Z" itemprop="datePublished">04-18</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/18/Linux-Hook%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">Linux Hook技术介绍</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hook/" rel="tag">Hook</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/17/Linux%E7%BB%88%E7%AB%AF%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%E7%9A%84%E9%A2%9C%E8%89%B2/" class="archive-article-date">
-      <time datetime="2020-04-18T01:05:04.854Z" itemprop="datePublished">04-17</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/17/Linux%E7%BB%88%E7%AB%AF%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E5%AD%97%E7%AC%A6%E7%9A%84%E9%A2%9C%E8%89%B2/">Linux终端控制打印字符的颜色</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/17/VolgaCTF-Keygreed/" class="archive-article-date">
-      <time datetime="2020-04-18T00:52:57.376Z" itemprop="datePublished">04-17</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/17/VolgaCTF-Keygreed/">VolgaCTF-2020-Keygreed-WP</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECC/" rel="tag">ECC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MOV-attack/" rel="tag">MOV attack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag">密码学</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/" class="archive-article-date">
-      <time datetime="2020-04-17T06:54:25.292Z" itemprop="datePublished">04-16</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/16/Linux%E4%B8%8B%E6%89%B9%E9%87%8Fkill%E5%A4%9A%E4%B8%AA%E5%90%8C%E5%90%8D%E8%BF%9B%E7%A8%8B/">Linux下批量kill多个同名进程</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
-          
-
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">
