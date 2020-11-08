@@ -284,7 +284,7 @@
 <p>​    $CRC(K \bigoplus opad || CRC(K \bigoplus ipad ||M2))$</p>
 <p>, which give me a chance to forge.</p>
 <p>As for polynomial form, we could rewrite it as</p>
-<p>$HMAC(K, m) = m<em>x^{128} + K</em>x^{(128+M)} + ipad<em>x^{(128+M)} + CONST</em>x^{64} + K<em>x^{128} + opad</em>x^{128} + CONST \ mod \ CRC_POLY $</p>
+<p>$HMAC(K, m) = m <em> x^{128} + K </em> x^{(128+M)} + ipad <em> x^{(128+M)} + CONST </em> x^{64} + K <em> x^{128} + opad </em> x^{128} + CONST \ mod \ CRC_POLY $</p>
 <p>So,  $HMAC(K, m) + HMAC(0, m) = K<em>x^{(128+M)} + K</em>x^{128} \ mod \ CRC_POLY$</p>
 <h3 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h3><h4 id="Example-1-2015-MMA-CTF-motto-mijikai-address"><a href="#Example-1-2015-MMA-CTF-motto-mijikai-address" class="headerlink" title="Example 1: 2015 MMA CTF - motto mijikai address"></a>Example 1: 2015 MMA CTF - motto mijikai address</h4><blockquote>
 <p>In this challenge, we can register users, login and create shortened urls. Our first goal is to login as admin. Session data is stored in cookies, signed with some HMAC.  </p>
@@ -294,7 +294,7 @@
 <p>In the <a href="https://ctftime.org/task/2108" target="_blank" rel="noopener">challenge</a>, We’re trying a new mac here at BKP—HMAC-CRC. The hmac (with our key) of “zupe zecret” is ‘0xa57d43a032feb286’. What’s the hmac of “BKPCTF”? </p>
 </blockquote>
 <p>As we mentioned in the <strong>Expand</strong>, we can regard it as polynomial, so we know </p>
-<p>$HMAC(K, m) + HMAC(0, m) = K<em>x^{(128+M)} + K</em>x^{128} \ mod \ CRC_POLY$         (1)</p>
+<p>$HMAC(K, m) + HMAC(0, m) = K <em> x^{(128+M)} + K </em> x^{128} \ mod \ CRC_POLY$         (1)</p>
 <p>, denote it as $KX$</p>
 <p>$HMAC(1, m) + HMAC(0, m) = x^{(128+M)} + x^{128} \ mod \ CRC_POLY$                     (2)</p>
 <p>, that is, $X$</p>
